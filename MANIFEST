@@ -1,0 +1,9 @@
+svg2/__init__.py # VERSION
+svg2/Svg.py
+svg2/const.py
+demo_svg2.py
+
+README.md
+LICENSE
+
+st.sh
