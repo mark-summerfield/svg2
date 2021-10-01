@@ -12,8 +12,9 @@ except ImportError:
 
 
 def main():
-    print(svg2.__version__)
-    # svg = svg2.Svg(..., svg2.SOME_CONST) # API usage
+    print(svg2.__name__, svg2.__version__)
+    # svg1 = svg2.Svg1(..., svg2.SOME_CONST) # API usage for SVG 1.1 2nd ed
+    # svg = svg2.Svg(..., svg2.SOME_CONST) # API usage for SVG 2
     
 
 if __name__ == '__main__':
