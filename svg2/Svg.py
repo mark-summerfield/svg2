@@ -2,29 +2,21 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-class _SVG: # base class for all that's common to SVG 1.1 and 2
+from .common import Standard
+
+
+class Svg: # Class and namespace
+
+    Standard = Standard
 
     def __init__(self):
         self._items = []
 
 
-class Svg1(_SVG):
-
-    def __init__(self):
-        super().__init__()
-
-
-    @property
-    def standard(self):
-        return '1.1 2nd edition'
+    def save(self, filename, *, standard=Standard.SVG_1_1_2E):
+        with open(filename, 'wt', encoding='utf-8') as file:
+            self.write(file, standard=standard)
 
 
-class Svg2(_SVG):
-
-    def __init__(self):
-        super().__init__()
-
-
-    @property
-    def standard(self):
-        return '2.0'
+    def write(self, writable, *, standard=Standard.SVG_1_1_2E):
+        raise NotImplementedError

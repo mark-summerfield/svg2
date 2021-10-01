@@ -2,4 +2,10 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-SVG_1_1_NAMESPACE = 'xmlns="http://www.w3.org/2000/svg"'
+import enum
+
+
+@enum.unique
+class Standard(enum.Enum):
+    SVG_1_1_2E = 1
+    SVG_2_0 = 2

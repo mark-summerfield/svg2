@@ -13,10 +13,9 @@ except ImportError:
 
 def main():
     print(svg2.__name__, svg2.__version__)
-    svg1 = svg2.Svg1() # SVG 1.1 2nd ed
-    print(svg1.standard)
-    svg = svg2.Svg2() # SVG 2
-    print(svg.standard)
+    svg = svg2.Svg()
+    print(svg.Standard, svg2.Svg.Standard)
+    print(svg)
 
 
 if __name__ == '__main__':

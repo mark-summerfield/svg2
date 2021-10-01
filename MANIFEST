@@ -2,7 +2,7 @@ demo_svg2.py
 
 svg2/__init__.py # VERSION
 svg2/Svg.py
-svg2/const.py
+svg2/common.py
 
 t/test_create.py
 t/test_render.py
@@ -12,6 +12,7 @@ README.md
 LICENSE
 
 setup.py
-pyproject.toml
 
 st.sh
+
+# vim: syn=yaml

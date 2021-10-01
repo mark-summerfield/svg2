@@ -5,4 +5,4 @@
 __version__ = '0.1.0-pre-alpha'
 
 
-from .Svg import Svg1, Svg2
+from .Svg import Svg
