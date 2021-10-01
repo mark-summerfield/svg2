@@ -14,7 +14,7 @@ except ImportError:
 def main():
     print(svg2.__name__, svg2.__version__)
     svg = svg2.Svg()
-    print(svg.Standard, svg2.Svg.Standard)
+    print(svg.Version, svg.Version.__members__)
     print(svg)
 
 

@@ -5,7 +5,14 @@
 import enum
 
 
+# Minimum:
+#   <svg xmlns="http://www.w3.org/2000/svg">...</svg>
+# This tag supports other attributes, e.g., version, width, height, viewBox,
+# preserveAspectRatio, and _many_ more.
+#
+# XML_NAMESPACE = 'http://www.w3.org/2000/svg' # enum?
+
 @enum.unique
-class Standard(enum.Enum):
-    SVG_1_1_2E = 1
-    SVG_2_0 = 2
+class Version(enum.Enum):
+    SVG_1_1 = '1.1' # 2nd edition
+    SVG_2_0 = '2'

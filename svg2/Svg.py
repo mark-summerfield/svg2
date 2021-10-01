@@ -2,21 +2,31 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-from .common import Standard
+import io
+
+from .common import Version
 
 
 class Svg: # Class and namespace
 
-    Standard = Standard
+    Version = Version
 
     def __init__(self):
         self._items = []
 
 
-    def save(self, filename, *, standard=Standard.SVG_1_1_2E):
+    def save(self, filename, *, version=Version.SVG_1_1):
         with open(filename, 'wt', encoding='utf-8') as file:
-            self.write(file, standard=standard)
+            self.write(file, version=version)
 
 
-    def write(self, writable, *, standard=Standard.SVG_1_1_2E):
+    def writestr(self, *, version=Version.SVG_1_1):
+        stream = io.StringIO()
+        self.write(stream, version=version)
+        svg = stream.getvalue()
+        stream.close()
+        return svg
+
+
+    def write(self, stream, *, version=Version.SVG_1_1):
         raise NotImplementedError
