@@ -1,9 +1,17 @@
 svg2/__init__.py # VERSION
 svg2/Svg.py
 svg2/const.py
+
+t/test_create.py
+t/test_render.py
+t/test_edit.py
+
 demo_svg2.py
 
 README.md
 LICENSE
+
+setup.py
+pyproject.toml
 
 st.sh
