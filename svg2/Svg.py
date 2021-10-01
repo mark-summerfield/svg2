@@ -17,16 +17,16 @@ class Svg: # Class and namespace
 
     def save(self, filename, *, version=Version.SVG_1_1):
         with open(filename, 'wt', encoding='utf-8') as file:
-            self.write(file, version=version)
+            self._write(file, version=version)
 
 
     def writestr(self, *, version=Version.SVG_1_1):
         stream = io.StringIO()
-        self.write(stream, version=version)
+        self._write(stream, version=version)
         svg = stream.getvalue()
         stream.close()
         return svg
 
 
-    def write(self, stream, *, version=Version.SVG_1_1):
+    def _write(self, stream, *, version):
         raise NotImplementedError
