@@ -3,3 +3,6 @@
 # License: GPLv3
 
 __version__ = '0.1.0-pre-alpha'
+
+
+from .Svg import Svg1, Svg2
