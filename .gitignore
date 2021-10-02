@@ -45,3 +45,5 @@ zig-cache
 build/
 dist/
 svg2.egg-info/
+clean.sh
+publish.sh
