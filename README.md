@@ -11,6 +11,13 @@ The only dependencies are Python's standard library.
 However, `svg2` will make use of superior third-party libraries when they
 are available.
 
+PyPI: https://pypi.org/project/svg2/
+
+Install:
+```
+python3 -m pip install svg2
+````
+
 ## Examples
 
 _TODO_
