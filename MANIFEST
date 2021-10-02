@@ -3,6 +3,7 @@ demo_svg2.py
 svg2/__init__.py # VERSION
 svg2/Svg.py
 svg2/common.py
+# TODO will need an Item class since editing is required...
 
 t/test_create.py
 t/test_render.py
