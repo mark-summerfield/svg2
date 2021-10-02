@@ -2,7 +2,7 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-__version__ = '0.1.0-pre-alpha'
+__version__ = '0.1.0'
 
 
 from .Svg import Svg

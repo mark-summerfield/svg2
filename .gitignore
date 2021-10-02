@@ -42,3 +42,6 @@ dub.selections.json
 .sconsign.dblite
 .mypy_cache
 zig-cache
+build/
+dist/
+svg2.egg-info/
