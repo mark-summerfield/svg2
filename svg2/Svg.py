@@ -5,13 +5,14 @@
 import gzip
 import io
 
-from .Color import Color
+from .Color import Color, ColorError
 from .Common import Version
 
 
 class Svg: # Class and namespace
 
     Color = Color
+    ColorError = ColorError
     Version = Version
 
     def __init__(self):

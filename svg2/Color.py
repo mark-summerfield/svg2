@@ -8,6 +8,10 @@ import re
 from .Common import Error
 
 
+class ColorError(Error):
+    pass
+
+
 class Color(collections.namedtuple('Color', 'red green blue alpha',
                                    defaults=(0, 0, 0, 0))):
     '''A Color is represented by the four components each 0-255 in range.'''
@@ -17,11 +21,11 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
     SEP = ','
     '''Change to ', ' for pretty-printing.'''
 
-    @staticmethod
-    def new(color):
-        '''Returns a Color from a color name (e.g., 'blue'), hex string
+
+    def __new__(Class, color):
+        '''Returns a Color given a color name (e.g., 'blue'), hex string
         (e.g., '#F00', '#00FF73'), or style (e.g., rgb(255, 0, 0),
-        rgb(100%, 0%, 0%)), or raises an Error.'''
+        rgb(100%, 0%, 0%)), or raises a ColorError.'''
         color_rx = re.compile(
             r'#(?P<hex>[\da-fA-F]{3,8})|'
             r'rgb\s*\((?P<rgb>\d{1,3}%?,\s*\d{1,3}%?,\s*\d{1,3}%?\s*'
@@ -30,7 +34,7 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
         if match is None:
             t = _color_for_name(color)
             if t is not None:
-                return Color(*t)
+                return super().__new__(Color, *t)
         else:
             h = match.group('hex')
             if h:
@@ -39,10 +43,11 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
                 elif len(h) == 4:
                     h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}{h[3]}{h[3]}'
                 if len(h) == 6:
-                    return Color(int(h[:2], 16), int(h[2:4], 16),
-                                 int(h[4:6], 16))
-                return Color(int(h[:2], 16), int(h[2:4], 16),
-                             int(h[4:6], 16), int(h[6:8], 16))
+                    return super().__new__(Color, int(h[:2], 16),
+                                           int(h[2:4], 16), int(h[4:6], 16))
+                return super().__new__(
+                    Color, int(h[:2], 16), int(h[2:4], 16), int(h[4:6], 16),
+                    int(h[6:8], 16))
             else:
                 rgb = match.group('rgb')
                 percent = '%' in rgb
@@ -50,8 +55,13 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
                 if percent:
                     for i in range(len(rgb)):
                         rgb[i] *= _PERCENT_FACTOR
-                return Color(*rgb)
-        raise Error(f'invalid color: {color!r}')
+                for i in range(len(rgb)):
+                    rgb[i] = round(rgb[i])
+                    if not (0 <= rgb[i] < 256):
+                        raise ColorError(
+                            f'out of range color value: {color!r}')
+                return super().__new__(Color, *rgb)
+        raise ColorError(f'invalid color: {color!r}')
 
 
     @property
