@@ -29,7 +29,13 @@ class TestColor(unittest.TestCase):
         self.assertTrue(str(err.exception).startswith(
                         'out of range color value'))
         with self.assertRaises(Svg.ColorError):
-            Svg.Color('rgb(0%,101%,0%,0%)')
+            Svg.Color('rgb(0%, 101%, 0%, 0%)')
+        color = Svg.Color(0xFF)
+        self.assertEqual(color.name, 'red')
+        color = Svg.Color(0, 0xFF)
+        self.assertEqual(color.name, 'lime')
+        color = Svg.Color(0, 0, 0xFF)
+        self.assertEqual(color.name, 'blue')
         # TODO
 
 

@@ -22,17 +22,20 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
     '''Change to ', ' for pretty-printing.'''
 
 
-    def __new__(Class, color):
-        '''Returns a Color given a color name (e.g., 'blue'), hex string
-        (e.g., '#F00', '#00FF73'), or style (e.g., rgb(255, 0, 0),
-        rgb(100%, 0%, 0%)), or raises a ColorError.'''
+    def __new__(Class, color_or_red, blue=0, green=0, alpha=0):
+        '''Returns a Color given a color value (e.g., 255,127) or color name
+        (e.g., 'blue'), hex string (e.g., '#F00', '#00FF73'), or style
+        (e.g., 'rgb(255, 0, 0)', 'rgb(100%, 0%, 0%)'), or raises a
+        ColorError.'''
+        if isinstance(color_or_red, int):
+            return super().__new__(Color, color_or_red, blue, green, alpha)
         color_rx = re.compile(
             r'#(?P<hex>[\da-fA-F]{3,8})|'
             r'rgb\s*\((?P<rgb>\d{1,3}%?,\s*\d{1,3}%?,\s*\d{1,3}%?\s*'
             r'(?:,\s*\d{1,3}%?)?\s*)\)')
-        match = color_rx.fullmatch(color)
+        match = color_rx.fullmatch(color_or_red)
         if match is None:
-            t = _color_for_name(color)
+            t = _color_for_name(color_or_red)
             if t is not None:
                 return super().__new__(Color, *t)
         else:
@@ -59,9 +62,9 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
                     rgb[i] = round(rgb[i])
                     if not (0 <= rgb[i] < 256):
                         raise ColorError(
-                            f'out of range color value: {color!r}')
+                            f'out of range color value: {color_or_red!r}')
                 return super().__new__(Color, *rgb)
-        raise ColorError(f'invalid color: {color!r}')
+        raise ColorError(f'invalid color: {color_or_red!r}')
 
 
     @property
