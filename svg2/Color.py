@@ -3,8 +3,7 @@
 # License: GPLv3
 
 import collections
-
-# TODO parse #HHH[H] #HHHHHH[HH] rgb(R%, ... rgb(R, ... etc.
+import re
 
 
 def _color_for_name(name):
@@ -13,6 +12,9 @@ def _color_for_name(name):
     return _color_for_name.d.get(name.strip().replace(' ', '').lower(),
                                  None)
 _color_for_name.d = None # noqa: E305
+
+
+_PERCENT_FACTOR = 255 / 100
 
 
 class Color(collections.namedtuple('Color', 'red green blue alpha',
@@ -25,10 +27,36 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
     '''Change to ', ' for pretty-printing.'''
 
     @staticmethod
-    def for_name(name):
-        t = _color_for_name(name)
-        if t is not None:
-            return Color(*t)
+    def new(color):
+        color_rx = re.compile(
+            r'#(?P<hex>[\da-fA-F]{3,8})|'
+            r'rgb\s*\((?P<rgb>\d{1,3}%?,\s*\d{1,3}%?,\s*\d{1,3}%?\s*'
+            r'(?:,\s*\d{1,3}%?)?\s*)\)')
+        match = color_rx.fullmatch(color)
+        if match is None:
+            t = _color_for_name(color)
+            if t is not None:
+                return Color(*t)
+        else:
+            h = match.group('hex')
+            if h:
+                if len(h) == 3:
+                    h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}'
+                elif len(h) == 4:
+                    h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}{h[3]}{h[3]}'
+                if len(h) == 6:
+                    return Color(int(h[:2], 16), int(h[2:4], 16),
+                                 int(h[4:6], 16))
+                return Color(int(h[:2], 16), int(h[2:4], 16),
+                             int(h[4:6], 16), int(h[6:8], 16))
+            else:
+                rgb = match.group('rgb')
+                percent = '%' in rgb
+                rgb = [float(x.strip(' %')) for x in rgb.split(',', 3)]
+                if percent:
+                    for i in range(len(rgb)):
+                        rgb[i] *= _PERCENT_FACTOR
+                return Color(*rgb)
 
 
     @property
