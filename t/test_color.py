@@ -13,11 +13,11 @@ class TestColor(unittest.TestCase):
         name = 'orange'
         color = Svg.Color(name)
         self.assertTrue(color.red == 0xFF and color.green == 0xA5 and
-                        color.blue == 0x0 and color.alpha == 0x0)
+                        color.blue == 0x0 and color.alpha == 0xFF)
         self.assertEqual(name, color.name)
         self.assertEqual('#FFA500', color.hex_rgb)
-        self.assertEqual('#FFA50000', color.hex_rgba)
-        self.assertEqual(Svg.Color('rgb(255,165,0)').hex_rgba, '#FFA50000')
+        self.assertEqual('#FFA500FF', color.hex_rgba)
+        self.assertEqual(Svg.Color('rgb(255,165,0)').hex_rgba, '#FFA500FF')
         self.assertEqual(Svg.Color('rgb(100%,65%,0%)').hex_rgb, '#FFA600')
         bad_color = 'bad name'
         with self.assertRaises(Svg.ColorError) as err:
