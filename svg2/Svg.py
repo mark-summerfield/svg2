@@ -5,7 +5,7 @@
 import gzip
 import io
 
-from .common import Version
+from .Common import Version
 
 
 class Svg: # Class and namespace
