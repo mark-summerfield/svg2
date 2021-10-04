@@ -5,16 +5,7 @@
 import collections
 import re
 
-
-def _color_for_name(name):
-    if _color_for_name.d is None:
-        _color_for_name.d = {v: k for k, v in name_for_color.items()}
-    return _color_for_name.d.get(name.strip().replace(' ', '').lower(),
-                                 None)
-_color_for_name.d = None # noqa: E305
-
-
-_PERCENT_FACTOR = 255 / 100
+from .Common import Error
 
 
 class Color(collections.namedtuple('Color', 'red green blue alpha',
@@ -28,6 +19,9 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
 
     @staticmethod
     def new(color):
+        '''Returns a Color from a color name (e.g., 'blue'), hex string
+        (e.g., '#F00', '#00FF73'), or style (e.g., rgb(255, 0, 0),
+        rgb(100%, 0%, 0%)), or raises an Error.'''
         color_rx = re.compile(
             r'#(?P<hex>[\da-fA-F]{3,8})|'
             r'rgb\s*\((?P<rgb>\d{1,3}%?,\s*\d{1,3}%?,\s*\d{1,3}%?\s*'
@@ -57,6 +51,7 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
                     for i in range(len(rgb)):
                         rgb[i] *= _PERCENT_FACTOR
                 return Color(*rgb)
+        raise Error(f'invalid color: {color!r}')
 
 
     @property
@@ -102,6 +97,16 @@ class Color(collections.namedtuple('Color', 'red green blue alpha',
         return (f'#{self.red:02X}{self.green:02X}{self.blue:02X}'
                 f'{self.alpha:02X}')
 
+
+def _color_for_name(name):
+    if _color_for_name.d is None:
+        _color_for_name.d = {v: k for k, v in name_for_color.items()}
+    return _color_for_name.d.get(name.strip().replace(' ', '').lower(),
+                                 None)
+_color_for_name.d = None # noqa: E305
+
+
+_PERCENT_FACTOR = 255 / 100
 
 name_for_color = {
     (0x00, 0x00, 0x00, 0x0): 'black',

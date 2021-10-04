@@ -6,6 +6,9 @@ svg2/Svg.py
 svg2/Common.py
 svg2/Color.py
 
+# Tests assume: cd t; ln -s ../svg2 .
+t.sh
+t/test_color.py # TODO
 t/test_create.py
 t/test_render.py
 t/test_edit.py
