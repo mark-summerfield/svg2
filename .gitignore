@@ -47,3 +47,4 @@ dist/
 svg2.egg-info/
 clean.sh
 publish.sh
+NOTES.adoc
