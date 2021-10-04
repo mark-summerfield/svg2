@@ -36,7 +36,8 @@ class Svg: # Class and namespace
 
         See also dumps() and write().
         '''
-        opener = (gzip.open if filename.upper().endswith(('.SVGZ', '.GZ'))
+        opener = (gzip.open
+                  if filename[-7:].upper().endswith(('.SVGZ', '.SVG.GZ'))
                   else open)
         with opener(filename, 'wt', encoding='utf-8') as file:
             self.write(file, version=version, indent=indent)
