@@ -2,9 +2,14 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+import collections
 import re
 
 from .Common import Error
+
+
+Rgb = collections.namedtuple('Rgb', 'red green blue')
+Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
 
 
 class ColorError(Error):
@@ -106,6 +111,16 @@ class Color(int):
         if name is None:
             return self.hex_rgba
         return name
+
+
+    @property
+    def rgb(self):
+        return Rgb(self.red, self.green, self.blue)
+
+
+    @property
+    def rgba(self):
+        return Rgba(self.red, self.green, self.blue, self.alpha)
 
 
     @property
