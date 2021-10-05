@@ -58,6 +58,10 @@ class TestColor(unittest.TestCase):
         self.assertEqual(color, lime)
         color = Svg.Color('rgb(0,255,0)')
         self.assertEqual(color, lime)
+        self.assertEqual(Svg.Color('rgb(100.0%,0.0%,0.0%)'), Svg.Color.RED)
+        a = Svg.Color('rgb(50%,33.33%,66.67%)')
+        b = Svg.Color(255//2, 255//3, round(255 * 2/3))
+        self.assertEqual(a, b)
         # TODO
 
 

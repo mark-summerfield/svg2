@@ -19,7 +19,7 @@ class Color(int):
             color = Svg.Color('#00F0073')
             color = Svg.Color('rgb(255, 0, 0)')
             color = Svg.Color('rgb(38, 180, 0, 220)')
-            color = Svg.Color('rgb(100%, 0%, 0%)')
+            color = Svg.Color('rgb(100%, 33.33%, 66.67%)')
             color = Svg.Color('orange')
         or as 1-3 RGB numbers, or 4 RGBA numbers (all 0-255), e.g.,
             color = Svg.Color(255) # green and blue default to 0;
@@ -39,8 +39,9 @@ class Color(int):
                              f'{green!r},{blue!r},{alpha!r})')
         color_rx = re.compile(
             r'#(?P<hex>[\da-fA-F]{3,8})|'
-            r'rgb\s*\((?P<rgb>\d{1,3}%?,\s*\d{1,3}%?,\s*\d{1,3}%?\s*'
-            r'(?:,\s*\d{1,3}%?)?\s*)\)')
+            r'rgb\s*\((?P<rgb>\d{1,3}(:?(:?\.\d+)?%)?,'
+            r'\s*\d{1,3}(:?(:?\.\d+)?%)?,\s*\d{1,3}(:?(:?\.\d+)?%)?\s*'
+            r'(?:,\s*\d{1,3}(:?(:?\.\d+)?%)?)?\s*)\)')
         match = color_rx.fullmatch(color_or_red)
         if match is None:
             t = _color_for_name(color_or_red)
@@ -71,7 +72,7 @@ class Color(int):
                         raise ColorError(
                             'rgb colors must be all values or all '
                             f'percentages: {color_or_red!r}')
-                    n = round(int(v.strip(' %')) * factor)
+                    n = round(float(v.strip(' %')) * factor)
                     if not (0 <= n < 256):
                         raise ColorError(
                             f'out of range color value: {color_or_red!r}')
