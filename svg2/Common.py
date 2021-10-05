@@ -5,10 +5,6 @@
 import enum
 
 
-class Error(Exception):
-    pass
-
-
 @enum.unique
 class Version(enum.Enum):
     SVG_1_1 = '1.1' # 2nd edition

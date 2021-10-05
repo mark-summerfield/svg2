@@ -5,33 +5,20 @@
 import collections
 import re
 
-from .Common import Error
-
-
-Rgb = collections.namedtuple('Rgb', 'red green blue')
-Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
-
-
-class ColorError(Error):
-    pass
-
 
 class Color(int):
-    '''Stores an RGBA color with each component 0-255 in a single 32-bit
-    int.'''
+    '''Holds an RGBA color with each component 0-255 in a single int.'''
 
     __slots__ = ()
 
-    SEP = ','
-    '''Change to ', ' for pretty-printing.'''
-
-    def __new__(Class, color_or_red, green=0, blue=0, alpha=0xFF):
+    def __new__(Class, color_or_red, green=0, blue=0, alpha=255):
         '''Returns a Color or raises a ColorError.
 
         The color is specified as a single string, e.g.,
-            color = Svg.Color('#F00')
+            color = Svg.Color('#E4C')
             color = Svg.Color('#00F0073')
             color = Svg.Color('rgb(255, 0, 0)')
+            color = Svg.Color('rgb(38, 180, 0, 220)')
             color = Svg.Color('rgb(100%, 0%, 0%)')
             color = Svg.Color('orange')
         or as 1-3 RGB numbers, or 4 RGBA numbers (all 0-255), e.g.,
@@ -39,10 +26,17 @@ class Color(int):
                                    # alpha to 255
             color = Svg.Color(0, 0x7F, 0, 0x7F)
         or raises a ColorError.
+
+        For convenience all named colors are predefined, e.g.:
+            Svg.Color('blue') == Svg.Color.BLUE
         '''
         if isinstance(color_or_red, int):
-            return super().__new__(
-                Class, _int_for_rgba(color_or_red, green, blue, alpha))
+            if (0 <= color_or_red < 256 and 0 <= green < 256 and
+                    0 <= blue < 256 and 0 <= alpha < 256):
+                return super().__new__(
+                    Class, _int_for_rgba(color_or_red, green, blue, alpha))
+            raise ColorError(f'out of range color value: ({color_or_red!r},'
+                             f'{green!r},{blue!r},{alpha!r})')
         color_rx = re.compile(
             r'#(?P<hex>[\da-fA-F]{3,8})|'
             r'rgb\s*\((?P<rgb>\d{1,3}%?,\s*\d{1,3}%?,\s*\d{1,3}%?\s*'
@@ -69,17 +63,15 @@ class Color(int):
                                          int(h[4:6], 16), int(h[6:8], 16)))
             else:
                 rgb = match.group('rgb')
-                percent = '%' in rgb
-                rgb = [float(x.strip(' %')) for x in rgb.split(',', 3)]
-                if percent:
-                    for i in range(len(rgb)):
-                        rgb[i] *= _PERCENT_FACTOR
-                for i in range(len(rgb)):
-                    rgb[i] = round(rgb[i])
-                    if not (0 <= rgb[i] < 256):
+                factor = (255 / 100.0) if '%' in rgb else 1
+                parts = []
+                for v in rgb.split(',', 3):
+                    n = round(int(v.strip(' %')) * factor)
+                    if not (0 <= n < 256):
                         raise ColorError(
                             f'out of range color value: {color_or_red!r}')
-                return super().__new__(Class, _int_for_rgba(*rgb))
+                    parts.append(n)
+                return super().__new__(Class, _int_for_rgba(*parts))
         raise ColorError(f'invalid color: {color_or_red!r}')
 
 
@@ -105,12 +97,10 @@ class Color(int):
 
     @property
     def name(self):
-        if self.alpha != 0xFF:
-            return self.hex_rgba
-        name = name_for_color.get((self.red, self.green, self.blue))
-        if name is None:
-            return self.hex_rgba
-        return name
+        if self.alpha != 255:
+            return self.rgba_html()
+        name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
+        return name or self.rgba_html()
 
 
     @property
@@ -123,57 +113,74 @@ class Color(int):
         return Rgba(self.red, self.green, self.blue, self.alpha)
 
 
-    @property
-    def rgb_ints(self):
-        return (f'rgb({self.red}{Color.SEP}{self.green}{Color.SEP}'
-                f'{self.blue})')
+    def rgb_html(self, *, minimize=True):
+        '''Use minimize=True (the default) to produce 3 hex digits when
+        possible; use minimize=False to guarantee 6 hex digits in all
+        cases.'''
+        r = f'{self.red:02X}'
+        g = f'{self.green:02X}'
+        b = f'{self.blue:02X}'
+        if (minimize and (r[0] == r[1]) and (g[0] == g[1]) and
+                (b[0] == b[1])):
+            return f'#{r[0]}{g[0]}{b[0]}'
+        return f'#{r}{g}{b}'
 
 
-    @property
-    def rgba_ints(self):
-        return (f'rgb({self.red}{Color.SEP}{self.green}{Color.SEP}'
-                f'{self.blue}{Color.SEP}{self.alpha})')
+    def rgba_html(self, *, minimize=True):
+        '''Use minimize=True (the default) to produce 4 hex digits when
+        possible; use minimize=False to guarantee 8 hex digits in all
+        cases.'''
+        r = f'{self.red:02X}'
+        g = f'{self.green:02X}'
+        b = f'{self.blue:02X}'
+        a = f'{self.alpha:02X}'
+        if (minimize and (r[0] == r[1]) and (g[0] == g[1]) and
+                (b[0] == b[1]) and (a[0] == a[1])):
+            return f'#{r[0]}{g[0]}{b[0]}{a[0]}'
+        return f'#{r}{g}{b}{a}'
 
 
-    @property
-    def rgb_percents(self):
-        return (f'rgb({self.red/255:.0%}{Color.SEP}{self.green/255:.0%}'
-                f'{Color.SEP}{self.blue/255:.0%})')
+    def rgb_css(self, *, sep=','):
+        '''Use sep=', ' for a pretty-printing string.'''
+        return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue})')
 
 
-    @property
-    def rgba_percents(self):
-        return (f'rgb({self.red/255:.0%}{Color.SEP}{self.green/255:.0%}'
-                f'{Color.SEP}{self.blue/255:.0%}{Color.SEP}'
-                f'{self.alpha/255:.0%})')
+    def rgba_css(self, *, sep=','):
+        '''Use sep=', ' for a pretty-printing string.'''
+        return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
+                f'{self.alpha})')
 
 
-    @property
-    def hex_rgb(self):
-        return f'#{self.red:02X}{self.green:02X}{self.blue:02X}'
+Rgb = collections.namedtuple('Rgb', 'red green blue')
+Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
 
 
-    @property
-    def hex_rgba(self):
-        return (f'#{self.red:02X}{self.green:02X}{self.blue:02X}'
-                f'{self.alpha:02X}')
+class ColorError(Exception):
+    pass
 
 
-def _int_for_rgba(red, green, blue, alpha=0xFF):
+def _int_for_rgba(red, green, blue, alpha=255):
     return (red << 24) + (green << 16) + (blue << 8) + alpha
 
 
 def _color_for_name(name):
     if _color_for_name.d is None:
-        _color_for_name.d = {v: k for k, v in name_for_color.items()}
+        _color_for_name.d = {v: k for k, v in _NAME_FOR_COLOR.items()}
+        _color_for_name.d['aqua'] = (0x00, 0xFF, 0xFF) # synonyms
+        _color_for_name.d['fuchsia'] = (0xFF, 0x00, 0xFF)
+        _color_for_name.d['gray'] = (0x80, 0x80, 0x80)
+        _color_for_name.d['darkgray'] = (0xA9, 0xA9, 0xA9)
+        _color_for_name.d['darkslategray'] = (0x2F, 0x4F, 0x4F)
+        _color_for_name.d['dimgray'] = (0x69, 0x69, 0x69)
+        _color_for_name.d['lightgray'] = (0xD3, 0xD3, 0xD3)
+        _color_for_name.d['lightslategray'] = (0x77, 0x88, 0x99)
+        _color_for_name.d['slategray'] = (0x70, 0x80, 0x90)
     return _color_for_name.d.get(name.strip().replace(' ', '').lower(),
                                  None)
 _color_for_name.d = None # noqa: E305
 
 
-_PERCENT_FACTOR = 255 / 100
-
-name_for_color = {
+_NAME_FOR_COLOR = {
     (0x00, 0x00, 0x00): 'black',
     (0xC0, 0xC0, 0xC0): 'silver',
     (0x80, 0x80, 0x80): 'grey',
@@ -314,3 +321,17 @@ name_for_color = {
     (0x9A, 0xCD, 0x32): 'yellowgreen',
     (0x66, 0x33, 0x99): 'rebeccapurple',
     }
+
+for _value, _name in _NAME_FOR_COLOR.items():
+    setattr(Color, _name.upper(), Color(*_value))
+for _name, _value in (('AQUA', (0x00, 0xFF, 0xFF)), # synonyms
+                      ('FUCHSIA', (0xFF, 0x00, 0xFF)),
+                      ('GRAY', (0x80, 0x80, 0x80)),
+                      ('DARKGRAY', (0xA9, 0xA9, 0xA9)),
+                      ('DARKSLATEGRAY', (0x2F, 0x4F, 0x4F)),
+                      ('DIMGRAY', (0x69, 0x69, 0x69)),
+                      ('LIGHTGRAY', (0xD3, 0xD3, 0xD3)),
+                      ('LIGHTSLATEGRAY', (0x77, 0x88, 0x99)),
+                      ('SLATEGRAY', (0x70, 0x80, 0x90))):
+    setattr(Color, _name, Color(*_value))
+del _value, _name
