@@ -81,6 +81,18 @@ class Color(int):
         raise ColorError(f'invalid color: {color_or_red!r}')
 
 
+    def __repr__(self):
+        h = self.rgb_html() if self.alpha == 255 else self.rgba_html()
+        return f'Color({h!r})'
+
+
+    def __str__(self):
+        if self.alpha != 255:
+            return self.rgba_html()
+        name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
+        return name or self.rgba_html()
+
+
     @property
     def red(self):
         return (self & 0xFF000000) >> 24
@@ -99,14 +111,6 @@ class Color(int):
     @property
     def alpha(self):
         return self & 0x000000FF
-
-
-    @property
-    def name(self):
-        if self.alpha != 255:
-            return self.rgba_html()
-        name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
-        return name or self.rgba_html()
 
 
     @property

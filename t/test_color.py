@@ -14,7 +14,7 @@ class TestColor(unittest.TestCase):
         color = Svg.Color(name)
         self.assertTrue(color.red == 0xFF and color.green == 0xA5 and
                         color.blue == 0x0 and color.alpha == 0xFF)
-        self.assertEqual(name, color.name)
+        self.assertEqual(name, str(color))
         self.assertEqual('#FFA500', color.rgb_html())
         self.assertEqual('#FFA500FF', color.rgba_html())
         self.assertEqual(Svg.Color('rgb(255,165,0)').rgba_html(),
@@ -24,7 +24,7 @@ class TestColor(unittest.TestCase):
         color = Svg.Color('#22CCBB')
         self.assertEqual('#22CCBB', color.rgb_html(minimize=False))
         self.assertEqual('#2CB', color.rgb_html())
-        self.assertEqual('#2CBF', color.name)
+        self.assertEqual('#2CBF', str(color))
         bad_color = 'bad name'
         with self.assertRaises(Svg.ColorError) as err:
             Svg.Color(bad_color)
@@ -37,11 +37,12 @@ class TestColor(unittest.TestCase):
         with self.assertRaises(Svg.ColorError):
             Svg.Color('rgb(0%, 101%, 0%, 0%)')
         color = Svg.Color(0xFF)
-        self.assertEqual(color.name, 'red')
+        self.assertEqual(str(color), 'red')
         color = Svg.Color(0, 0xFF)
-        self.assertEqual(color.name, 'lime')
+        self.assertEqual(str(color), 'lime')
         color = Svg.Color(0, 0, 0xFF)
-        self.assertEqual(color.name, 'blue')
+        self.assertEqual(str(color), 'blue')
+        self.assertEqual(repr(color), "Color('#00F')")
         color = Svg.Color('cyan')
         self.assertEqual(Svg.Color('aqua'), color) # synonym
         self.assertEqual(Svg.Color.CYAN, color)
