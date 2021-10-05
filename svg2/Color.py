@@ -87,10 +87,28 @@ class Color(int):
 
 
     def __str__(self):
+        '''Returns the color's name if it has one, otherwise its HTML hex
+        value, either RGB if its alpha is 255, or RGBA.
+
+        See also the `name` property and the `rgb_html()` and `rgba_html()`
+        methods.'''
         if self.alpha != 255:
             return self.rgba_html()
         name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
         return name or self.rgba_html()
+
+
+    @property
+    def name(self):
+        '''Returns the color's name if it has one and the name is shorter or
+        equal to the length of the color's HTML hex value; otherwise returns
+        the color's HTML hex value.
+
+        See also the `__str__()`, `rgb_html()`, and `rgba_html()`
+        methods.'''
+        h = self.rgb_html() if self.alpha == 255 else self.rgba_html()
+        name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
+        return name if name is not None and len(name) <= len(h) else h
 
 
     @property
@@ -124,9 +142,12 @@ class Color(int):
 
 
     def rgb_html(self, *, minimize=True):
-        '''Use minimize=True (the default) to produce 3 hex digits when
-        possible; use minimize=False to guarantee 6 hex digits in all
-        cases.'''
+        '''Use minimize=True (the default) to produce '#' followed by 3 hex
+        digits when possible; use minimize=False to guarantee a '#' followed
+        by exactly 6 hex digits in all cases.
+
+        See also the `name` property and the `__str__()` and `rgba_html()`
+        methods.'''
         r = f'{self.red:02X}'
         g = f'{self.green:02X}'
         b = f'{self.blue:02X}'
@@ -137,9 +158,12 @@ class Color(int):
 
 
     def rgba_html(self, *, minimize=True):
-        '''Use minimize=True (the default) to produce 4 hex digits when
-        possible; use minimize=False to guarantee 8 hex digits in all
-        cases.'''
+        '''Use minimize=True (the default) to produce '#' followed by 4 hex
+        digits when possible; use minimize=False to guarantee a '#' followed
+        by exactly 8 hex digits in all cases.
+
+        See also the `name` property and the `__str__()` and `rgb_html()`
+        methods.'''
         r = f'{self.red:02X}'
         g = f'{self.green:02X}'
         b = f'{self.blue:02X}'
@@ -151,12 +175,16 @@ class Color(int):
 
 
     def rgb_css(self, *, sep=','):
-        '''Use sep=', ' for a pretty-printing string.'''
+        '''Use sep=', ' for a pretty-printing string.
+
+        See also the `rgba_css()` method.'''
         return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue})')
 
 
     def rgba_css(self, *, sep=','):
-        '''Use sep=', ' for a pretty-printing string.'''
+        '''Use sep=', ' for a pretty-printing string.
+
+        See also the `rgb_css()` method.'''
         return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
                 f'{self.alpha})')
 
