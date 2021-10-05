@@ -24,7 +24,13 @@ class TestColor(unittest.TestCase):
         color = Svg.Color('#22CCBB')
         self.assertEqual('#22CCBB', color.rgb_html(minimize=False))
         self.assertEqual('#2CB', color.rgb_html())
-        self.assertEqual('#2CBF', str(color))
+        self.assertEqual('#2CB', color.name)
+        self.assertEqual('#2CB', str(color))
+        color = Svg.Color('#22CCBBDD')
+        self.assertEqual('#22CCBBDD', color.rgba_html(minimize=False))
+        self.assertEqual('#2CBD', color.rgba_html())
+        self.assertEqual('#2CBD', color.name)
+        self.assertEqual('#2CBD', str(color))
         bad_color = 'bad name'
         with self.assertRaises(Svg.ColorError) as err:
             Svg.Color(bad_color)

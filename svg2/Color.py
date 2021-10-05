@@ -87,28 +87,32 @@ class Color(int):
 
 
     def __str__(self):
-        '''Returns the color's name if it has one, otherwise its HTML hex
-        value, either RGB if its alpha is 255, or RGBA.
+        '''Returns the shortest of the color's name or HTML hex value.
+
+        Returns the name if it has one and the name is shorter or equal to
+        the length of the color's HTML hex value; otherwise returns the
+        color's HTML hex value.
 
         See also the `name` property and the `rgb_html()` and `rgba_html()`
         methods.'''
-        if self.alpha != 255:
+        if self.alpha != 255: # All named colors are solid so alpha == 255
             return self.rgba_html()
+        h = self.rgb_html()
         name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
-        return name or self.rgba_html()
+        return name if name is not None and len(name) <= len(h) else h
 
 
     @property
     def name(self):
-        '''Returns the color's name if it has one and the name is shorter or
-        equal to the length of the color's HTML hex value; otherwise returns
-        the color's HTML hex value.
+        '''Returns the color's name if it has one, otherwise its HTML hex
+        value, either RGB if its alpha is 255, or RGBA.
 
         See also the `__str__()`, `rgb_html()`, and `rgba_html()`
         methods.'''
-        h = self.rgb_html() if self.alpha == 255 else self.rgba_html()
+        if self.alpha != 255: # All named colors are solid so alpha == 255
+            return self.rgba_html()
         name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
-        return name if name is not None and len(name) <= len(h) else h
+        return name or self.rgb_html()
 
 
     @property
