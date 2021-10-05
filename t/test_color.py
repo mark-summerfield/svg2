@@ -49,6 +49,15 @@ class TestColor(unittest.TestCase):
         self.assertEqual(Svg.Color.GRAY, color)
         self.assertEqual(Svg.Color.GRAY, Svg.Color.GREY)
         self.assertEqual(Svg.Color('blue'), Svg.Color.BLUE)
+        with self.assertRaises(Svg.ColorError) as err:
+            Svg.Color('rgb(0%,100%,0,0)') # mixing percent and values
+        color = Svg.Color('rgb(0%,100%,0%,100%)')
+        lime = Svg.Color.LIME
+        self.assertEqual(color, lime)
+        color = Svg.Color('rgb(0%,100%,0%)')
+        self.assertEqual(color, lime)
+        color = Svg.Color('rgb(0,255,0)')
+        self.assertEqual(color, lime)
         # TODO
 
 

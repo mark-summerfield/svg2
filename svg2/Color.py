@@ -63,9 +63,14 @@ class Color(int):
                                          int(h[4:6], 16), int(h[6:8], 16)))
             else:
                 rgb = match.group('rgb')
-                factor = (255 / 100.0) if '%' in rgb else 1
+                percents = '%' in rgb
+                factor = (255 / 100.0) if percents else 1
                 parts = []
                 for v in rgb.split(',', 3):
+                    if percents and '%' not in v:
+                        raise ColorError(
+                            'rgb colors must be all values or all '
+                            f'percentages: {color_or_red!r}')
                     n = round(int(v.strip(' %')) * factor)
                     if not (0 <= n < 256):
                         raise ColorError(
