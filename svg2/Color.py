@@ -18,7 +18,7 @@ class Color(int):
             color = Svg.Color('#00F0073')
             color = Svg.Color('rgb(255, 0, 0)')
             color = Svg.Color('rgb(100%, 33.33%, 66.67%)')
-            color = Svg.Color('rgba(38, 180, 0, 0.75)')
+            color = Svg.Color('rgba(38, 180, 240, 0.75)')
             color = Svg.Color('orange')
         or as 1-3 RGB numbers, or 4 RGBA numbers (all 0-255), e.g.,
             color = Svg.Color(255) # green and blue default to 0;
@@ -41,7 +41,7 @@ class Color(int):
             FACTOR = 255 / 100.0
             i = color.find('(')
             kind = color[:i]
-            color = color[i + 1:].rstrip(')')
+            color = color[i + 1:].strip(' )')
             values = color.split(',')
             if kind == 'rgb' and len(values) != 3:
                 raise ColorError(f'invalid rgb value: {color_or_red!r}')
@@ -64,8 +64,11 @@ class Color(int):
             return super().__new__(Class, _int_for_rgba(*values))
         if color.startswith('#'):
             h = color[1:]
+            for c in h:
+                if c not in '0123456789abcdefABCDEF':
+                    raise ColorError(f'invalid hex value: {color_or_red!r}')
             if len(h) not in {3, 4, 6, 8}:
-                raise ColorError(f'invalid hex value: {color_or_red!r}')
+                raise ColorError(f'invalid hex length: {color_or_red!r}')
             if len(h) == 3:
                 h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}'
             elif len(h) == 4:
@@ -186,27 +189,48 @@ class Color(int):
         return f'#{r}{g}{b}{a}'
 
 
-    def rgb_css(self, *, sep=','):
+    def rgb_css(self, *, sep=',', percent=False, decimals=2):
         '''Returns a CSS rgb(R,G,B) string representing the color.
 
-        All values are 0-255.
+        All values are 0-255 unless percent is True in which case they are
+        0.0%-100.0% with the number of decimal places depending on decimals.
 
         Use sep=', ' for a pretty-printing string.
 
-        See also the `rgba_css()` method.'''
-        return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue})')
+        See also the `rgba_css()` method.
+
+        For round-trip reliability prefer `.name`, `__str__()`, or
+        `rgb_html()`.
+        '''
+        if percent:
+            return (f'rgb({self.red / 255:.{decimals}%}{sep}'
+                    f'{self.green / 255:.{decimals}%}{sep}'
+                    f'{self.blue / 255:.{decimals}%})')
+        return f'rgb({self.red}{sep}{self.green}{sep}{self.blue})'
 
 
-    def rgba_css(self, *, sep=',', decimals=4):
+    def rgba_css(self, *, sep=',', percent=False, decimals=2):
         '''Returns a CSS rgb(R,G,B,A) string representing the color.
 
-        The color values are 0-255; the alpha value is 0.0-1.0
+        The color values are 0-255 unless percent is True in which case they
+        are 0.0%-100.0% with the number of decimal places depending on
+        decimals. The alpha value is always 0.0-1.0 with the number of
+        decimal places depending on decimals.
 
         Use sep=', ' for a pretty-printing string.
 
-        See also the `rgb_css()` method.'''
-        return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
-                f'{self.alpha / 255:.0{decimals}f})')
+        See also the `rgb_css()` method.
+
+        For round-trip reliability prefer `.name`, `__str__()`, or
+        `rgba_html()`.
+        '''
+        alpha = f'{self.alpha / 255:.{decimals}f}'
+        if percent:
+            return (f'rgba({self.red / 255:.{decimals}%}{sep}'
+                    f'{self.green / 255:.{decimals}%}{sep}'
+                    f'{self.blue / 255:.{decimals}%}{sep}{alpha})')
+        return (f'rgba({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
+                f'{alpha})')
 
 
 Rgb = collections.namedtuple('Rgb', 'red green blue')

@@ -7,9 +7,9 @@ import unittest
 from svg2 import Svg
 
 
-class TestColor(unittest.TestCase):
+class TestSvg(unittest.TestCase):
 
-    def test1(self):
+    def test_color1(self):
         name = 'orange'
         color = Svg.Color(name)
         self.assertTrue(color.red == 0xFF and color.green == 0xA5 and
@@ -71,7 +71,47 @@ class TestColor(unittest.TestCase):
         a = Svg.Color('rgb(50%,33.33%,66.67%)')
         b = Svg.Color(255//2, 255//3, round(255 * 2/3))
         self.assertEqual(a, b)
-        # TODO
+        # TODO more!
+
+
+    def test_color2(self):
+        rgb = Svg.Color(0x7F, 0xA1, 0xF0)
+        self.assertEqual(rgb.name, '#7FA1F0')
+        self.assertEqual(str(rgb), '#7FA1F0')
+        self.assertEqual(rgb.rgb_html(), '#7FA1F0')
+        self.assertEqual(rgb.rgba_html(), '#7FA1F0FF')
+        self.assertEqual(rgb.rgb_css(), 'rgb(127,161,240)')
+        self.assertEqual(rgb.rgb_css(sep=', '), 'rgb(127, 161, 240)')
+        self.assertEqual(rgb.rgb_css(sep=', ', percent=True), # decimals=2
+                         'rgb(49.80%, 63.14%, 94.12%)')
+        self.assertEqual(rgb.rgb_css(sep=', ', percent=True, decimals=1),
+                         'rgb(49.8%, 63.1%, 94.1%)')
+        self.assertEqual(rgb.rgb_css(sep=', ', percent=True, decimals=0),
+                         'rgb(50%, 63%, 94%)')
+        self.assertEqual(rgb, Svg.Color(rgb.name))
+        self.assertEqual(rgb, Svg.Color(str(rgb)))
+        self.assertEqual(rgb, Svg.Color(rgb.rgb_html()))
+        self.assertEqual(rgb, Svg.Color(rgb.rgba_html()))
+        self.assertEqual(rgb, Svg.Color(rgb.rgb_css()))
+        self.assertEqual(rgb, Svg.Color(rgb.rgb_css(sep=', ',
+                                                    percent=True)))
+
+        rgba = Svg.Color(0x7F, 0xA1, 0xF0, 0xD0)
+        self.assertEqual(rgba.name, '#7FA1F0D0')
+        self.assertEqual(str(rgba), '#7FA1F0D0')
+        self.assertEqual(rgba.rgba_html(), '#7FA1F0D0')
+        self.assertEqual(rgba.rgba_css(sep=', '),
+                         'rgba(127, 161, 240, 0.82)')
+        self.assertEqual(rgba.rgba_css(sep=', ', percent=True), # decimals=2
+                         'rgba(49.80%, 63.14%, 94.12%, 0.82)')
+        self.assertEqual(rgba.rgba_css(sep=', ', percent=True, decimals=1),
+                         'rgba(49.8%, 63.1%, 94.1%, 0.8)')
+        self.assertEqual(rgba.rgba_css(sep=', ', percent=True, decimals=0),
+                         'rgba(50%, 63%, 94%, 1)')
+        self.assertEqual(rgba, Svg.Color(rgba.name))
+        self.assertEqual(rgba, Svg.Color(str(rgba)))
+        self.assertEqual(rgba, Svg.Color(rgba.rgba_html()))
+        # TODO more!
 
 
 if __name__ == '__main__':
