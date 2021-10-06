@@ -3,23 +3,22 @@
 # License: GPLv3
 
 import collections
-import re
 
 
 class Color(int):
-    '''Holds an RGBA color with each component 0-255 in a single int.'''
+    '''Holds an RGBA color with each component 0-255 as a single int.'''
 
     __slots__ = ()
 
     def __new__(Class, color_or_red, green=0, blue=0, alpha=255):
         '''Returns a Color or raises a ColorError.
 
-        The color is specified as a single string, e.g.,
+        The color is specified either as a single string, e.g.,
             color = Svg.Color('#E4C')
             color = Svg.Color('#00F0073')
             color = Svg.Color('rgb(255, 0, 0)')
-            color = Svg.Color('rgb(38, 180, 0, 220)')
             color = Svg.Color('rgb(100%, 33.33%, 66.67%)')
+            color = Svg.Color('rgba(38, 180, 0, 0.75)')
             color = Svg.Color('orange')
         or as 1-3 RGB numbers, or 4 RGBA numbers (all 0-255), e.g.,
             color = Svg.Color(255) # green and blue default to 0;
@@ -37,48 +36,51 @@ class Color(int):
                     Class, _int_for_rgba(color_or_red, green, blue, alpha))
             raise ColorError(f'out of range color value: ({color_or_red!r},'
                              f'{green!r},{blue!r},{alpha!r})')
-        color_rx = re.compile(
-            r'#(?P<hex>[\da-fA-F]{3,8})|'
-            r'rgb\s*\((?P<rgb>\d{1,3}(:?(:?\.\d+)?%)?,'
-            r'\s*\d{1,3}(:?(:?\.\d+)?%)?,\s*\d{1,3}(:?(:?\.\d+)?%)?\s*'
-            r'(?:,\s*\d{1,3}(:?(:?\.\d+)?%)?)?\s*)\)')
-        match = color_rx.fullmatch(color_or_red)
-        if match is None:
-            t = _color_for_name(color_or_red)
-            if t is not None:
-                return super().__new__(Class, _int_for_rgba(*t))
-        else:
-            h = match.group('hex')
-            if h:
-                if len(h) == 3:
-                    h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}'
-                elif len(h) == 4:
-                    h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}{h[3]}{h[3]}'
-                if len(h) == 6:
-                    return super().__new__(
-                        Class,
-                        _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
-                                      int(h[4:6], 16)))
+        color = ''.join(color_or_red.strip().split()).lower()
+        if color.startswith(('rgba(', 'rgb(')):
+            FACTOR = 255 / 100.0
+            i = color.find('(')
+            kind = color[:i]
+            color = color[i + 1:].rstrip(')')
+            values = color.split(',')
+            if kind == 'rgb' and len(values) != 3:
+                raise ColorError(f'invalid rgb value: {color_or_red!r}')
+            elif kind == 'rgba' and len(values) != 4:
+                raise ColorError(f'invalid rgba value: {color_or_red!r}')
+            for i in range(3):
+                value = values[i]
+                factor = FACTOR if value.endswith('%') else 1
+                value = round(float(value.strip(' %')) * factor)
+                if not (0 <= value < 256):
+                    raise ColorError(
+                        f'out of range color value: {color_or_red!r}')
+                values[i] = value
+            if len(values) == 4:
+                value = float(values[-1].strip())
+                if not (0.0 <= value <= 1.0):
+                    raise ColorError(
+                        f'out of range alpha value: {color_or_red!r}')
+                values[-1] = round(255.0 * value)
+            return super().__new__(Class, _int_for_rgba(*values))
+        if color.startswith('#'):
+            h = color[1:]
+            if len(h) not in {3, 4, 6, 8}:
+                raise ColorError(f'invalid hex value: {color_or_red!r}')
+            if len(h) == 3:
+                h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}'
+            elif len(h) == 4:
+                h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}{h[3]}{h[3]}'
+            if len(h) == 6:
                 return super().__new__(
                     Class, _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
-                                         int(h[4:6], 16), int(h[6:8], 16)))
-            else:
-                rgb = match.group('rgb')
-                percents = '%' in rgb
-                factor = (255 / 100.0) if percents else 1
-                parts = []
-                for v in rgb.split(',', 3):
-                    if percents and '%' not in v:
-                        raise ColorError(
-                            'rgb colors must be all values or all '
-                            f'percentages: {color_or_red!r}')
-                    n = round(float(v.strip(' %')) * factor)
-                    if not (0 <= n < 256):
-                        raise ColorError(
-                            f'out of range color value: {color_or_red!r}')
-                    parts.append(n)
-                return super().__new__(Class, _int_for_rgba(*parts))
-        raise ColorError(f'invalid color: {color_or_red!r}')
+                                         int(h[4:6], 16)))
+            return super().__new__(
+                Class, _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
+                                     int(h[4:6], 16), int(h[6:8], 16)))
+        values = _color_for_name(color_or_red)
+        if values is None:
+            raise ColorError(f'invalid color: {color_or_red!r}')
+        return super().__new__(Class, _int_for_rgba(*values))
 
 
     def __repr__(self):
@@ -117,31 +119,37 @@ class Color(int):
 
     @property
     def red(self):
+        '''Returns the color's red component as an int 0-255.'''
         return (self & 0xFF000000) >> 24
 
 
     @property
     def green(self):
+        '''Returns the color's green component as an int 0-255.'''
         return (self & 0x00FF0000) >> 16
 
 
     @property
     def blue(self):
+        '''Returns the color's blue component as an int 0-255.'''
         return (self & 0x0000FF00) >> 8
 
 
     @property
     def alpha(self):
+        '''Returns the color's alpha component as an int 0-255.'''
         return self & 0x000000FF
 
 
     @property
     def rgb(self):
+        '''Returns the color as an RGB namedtuple of ints 0-255.'''
         return Rgb(self.red, self.green, self.blue)
 
 
     @property
     def rgba(self):
+        '''Returns the color as an RGBA namedtuple of ints 0-255.'''
         return Rgba(self.red, self.green, self.blue, self.alpha)
 
 
@@ -179,18 +187,26 @@ class Color(int):
 
 
     def rgb_css(self, *, sep=','):
-        '''Use sep=', ' for a pretty-printing string.
+        '''Returns a CSS rgb(R,G,B) string representing the color.
+
+        All values are 0-255.
+
+        Use sep=', ' for a pretty-printing string.
 
         See also the `rgba_css()` method.'''
         return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue})')
 
 
-    def rgba_css(self, *, sep=','):
-        '''Use sep=', ' for a pretty-printing string.
+    def rgba_css(self, *, sep=',', decimals=4):
+        '''Returns a CSS rgb(R,G,B,A) string representing the color.
+
+        The color values are 0-255; the alpha value is 0.0-1.0
+
+        Use sep=', ' for a pretty-printing string.
 
         See also the `rgb_css()` method.'''
         return (f'rgb({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
-                f'{self.alpha})')
+                f'{self.alpha / 255:.0{decimals}f})')
 
 
 Rgb = collections.namedtuple('Rgb', 'red green blue')

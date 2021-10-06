@@ -9,7 +9,7 @@ from svg2 import Svg
 
 class TestColor(unittest.TestCase):
 
-    def test_new(self):
+    def test1(self):
         name = 'orange'
         color = Svg.Color(name)
         self.assertTrue(color.red == 0xFF and color.green == 0xA5 and
@@ -38,10 +38,9 @@ class TestColor(unittest.TestCase):
                          str(err.exception))
         with self.assertRaises(Svg.ColorError) as err:
             Svg.Color('rgb(0,256,0,0)')
-        self.assertTrue(str(err.exception).startswith(
-                        'out of range color value'))
+        self.assertTrue(str(err.exception).startswith('invalid rgb value'))
         with self.assertRaises(Svg.ColorError):
-            Svg.Color('rgb(0%, 101%, 0%, 0%)')
+            Svg.Color('rgb(0%, 101%, 0%, 1)')
         color = Svg.Color(0xFF)
         self.assertEqual(str(color), 'red')
         color = Svg.Color(0, 0xFF)
@@ -56,9 +55,12 @@ class TestColor(unittest.TestCase):
         self.assertEqual(Svg.Color.GRAY, color)
         self.assertEqual(Svg.Color.GRAY, Svg.Color.GREY)
         self.assertEqual(Svg.Color('blue'), Svg.Color.BLUE)
+        Svg.Color('rgba(0%,100%,0,0)') # mixing percent and values is fine
         with self.assertRaises(Svg.ColorError) as err:
-            Svg.Color('rgb(0%,100%,0,0)') # mixing percent and values
-        color = Svg.Color('rgb(0%,100%,0%,100%)')
+            Svg.Color('rgb(0%,100%,0%,1.0)') # rgb has 3 values
+        with self.assertRaises(Svg.ColorError) as err:
+            Svg.Color('rgba(0%,100%,0%)') # rgb has 4 values
+        color = Svg.Color('rgba(0%,100%,0%,1.0)')
         lime = Svg.Color.LIME
         self.assertEqual(color, lime)
         color = Svg.Color('rgb(0%,100%,0%)')
