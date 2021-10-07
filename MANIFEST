@@ -6,7 +6,7 @@ svg2/Svg.py
 svg2/Common.py
 svg2/Color.py
 
-t.py # TODO tests for all classe, properties, & methods
+t.py
 
 README.md
 LICENSE

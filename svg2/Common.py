@@ -7,5 +7,5 @@ import enum
 
 @enum.unique
 class Version(enum.Enum):
-    SVG_1_1 = '1.1' # 2nd edition
-    SVG_2_0 = '2'
+    V_1_1 = '1.1'
+    V_2_0 = '2'

@@ -10,6 +10,9 @@ class Color(int):
 
     __slots__ = ()
 
+    Rgb = collections.namedtuple('Rgb', 'red green blue')
+    Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
+
     def __new__(Class, color_or_red, green=0, blue=0, alpha=255):
         '''Returns a Color or raises a ColorError.
 
@@ -147,13 +150,13 @@ class Color(int):
     @property
     def rgb(self):
         '''Returns the color as an RGB namedtuple of ints 0-255.'''
-        return Rgb(self.red, self.green, self.blue)
+        return Color.Rgb(self.red, self.green, self.blue)
 
 
     @property
     def rgba(self):
         '''Returns the color as an RGBA namedtuple of ints 0-255.'''
-        return Rgba(self.red, self.green, self.blue, self.alpha)
+        return Color.Rgba(self.red, self.green, self.blue, self.alpha)
 
 
     def rgb_html(self, *, minimize=True):
@@ -231,10 +234,6 @@ class Color(int):
                     f'{self.blue / 255:.{decimals}%}{sep}{alpha})')
         return (f'rgba({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
                 f'{alpha})')
-
-
-Rgb = collections.namedtuple('Rgb', 'red green blue')
-Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
 
 
 class ColorError(Exception):

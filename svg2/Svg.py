@@ -5,28 +5,25 @@
 import gzip
 import io
 
-from .Color import Color, ColorError
 from .Common import Version
 
 
 class Svg: # Class and namespace
 
-    Color = Color
-    ColorError = ColorError
     Version = Version
 
     def __init__(self):
         self._items = []
 
 
-    def save(self, filename, *, version=Version.SVG_1_1, indent=None):
+    def save(self, filename, *, version=Version.V_1_1, indent=None):
         '''Save the drawing as an SVG file.
 
         The file will be compressed if the `filename` ends `.svgz` or
         `.svg.gz`.
 
         The `version` is the SVG version to output and may be either
-        `Version.SVG_1_1` (the default) or `Version.SVG_2_0`.
+        `Version.V_1_1` (the default) or `Version.V_2_0`.
 
         If `indent` is None (the default) then the SVG will have the minimum
         possible whitespace with no newlines or indentation. If `indent` is
@@ -49,7 +46,7 @@ class Svg: # Class and namespace
     dump = save # dump is more Pythonic; save is more meaningful
 
 
-    def dumps(self, *, version=Version.SVG_1_1, indent=None):
+    def dumps(self, *, version=Version.V_1_1, indent=None):
         '''Return the drawing as an SVG string.
 
         See also save() (for an explanation of the arguments), and
