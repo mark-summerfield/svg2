@@ -6,10 +6,20 @@ import gzip
 import io
 
 from .Common import Version
+from .Fill import Fill
+from .Shape import Circle, Ellipse, Line, Path, Rect
+from .Stroke import Stroke
 
 
 class Svg: # Class and namespace
 
+    Circle = Circle
+    Ellipse = Ellipse
+    Fill = Fill
+    Line = Line
+    Path = Path
+    Rect = Rect
+    Stroke = Stroke
     Version = Version
 
     def __init__(self):
