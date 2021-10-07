@@ -5,6 +5,7 @@
 import enum
 
 from .Color import Color
+from .Common import Version
 
 
 @enum.unique
@@ -36,10 +37,10 @@ class Stroke:
     LineCap = LineCap
     LineJoin = LineJoin
 
-    def __init__(self, color=None, width=None, *, opacity=1,
+    def __init__(self, color=Color.BLACK, width=1, *, opacity=1,
                  linecap=LineCap.default(), linejoin=LineJoin.default(),
                  dasharray=None):
-        self.color = color # Color
+        self.color = color if isinstance(color, Color) else Color(color)
         self.width = width # Length
         self.opacity = opacity # 0.0-1.0
         self.linejoin = linejoin # LineJoin
@@ -47,13 +48,7 @@ class Stroke:
         self.dasharray = dasharray # sequence of ints
 
 
-    @property
-    def stroke(self):
-        return self.color or Color.BLACK
-
-
-    @property
-    def svg(self):
+    def svg(self, version=Version.V_1_1, indent=None):
         parts = []
         if self.color != Color.BLACK:
             parts = [f'stroke="{self.color}"']
@@ -69,5 +64,5 @@ class Stroke:
             dashes = ' '.join(self.dasharray)
             parts.append(f'stroke-dasharray="{dashes}"')
         if parts:
-            return ' '.join(parts)
+            return ' ' + ' '.join(parts)
         return ''

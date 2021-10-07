@@ -4,6 +4,9 @@
 
 import enum
 
+from .Color import Color
+from .Common import Version
+
 
 @enum.unique
 class FillRule(enum.Enum):
@@ -20,16 +23,11 @@ class Fill:
     NONZERO = FillRule.NONZERO
     EVENODD = FillRule.EVENODD
 
-    def __init__(self, color=None, *, opacity=1,
+    def __init__(self, color='none', *, opacity=1,
                  fillrule=FillRule.default()):
-        self.color = color # Color
+        self.color = Color(color) if color != 'none' else color
         self.opacity = opacity # 0.0-1.0
         self._fillrule = fillrule # FillRule
-
-
-    @property
-    def fill(self):
-        return str(self.color) if self.color else 'none'
 
 
     @property
@@ -37,15 +35,19 @@ class Fill:
         return self._fillrule.value
 
 
-    @property
-    def svg(self):
+    @fillrule.setter
+    def fillrule(self, fillrule):
+        self._fillrule = fillrule
+
+
+    def svg(self, version=Version.V_1_1, indent=None):
         parts = []
-        if self.color:
-            parts.append(f'fill="{self.fill}"')
+        if self.color != Color.BLACK:
+            parts.append(f'fill="{self.color}"')
         if self.opacity != 1:
             parts.append(f'fill-opacity="{self.opacity}"')
         if self._fillrule is not FillRule.default():
             parts.append(f'fill-rule="{self._fillrule.value}"')
         if parts:
-            return ' '.join(parts)
+            return ' ' + ' '.join(parts)
         return ''
