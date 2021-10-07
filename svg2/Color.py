@@ -149,13 +149,13 @@ class Color(int):
 
     @property
     def rgb(self):
-        '''Returns the color as an RGB namedtuple of ints 0-255.'''
+        '''Returns the color as a Color.Rgb namedtuple of ints 0-255.'''
         return Color.Rgb(self.red, self.green, self.blue)
 
 
     @property
     def rgba(self):
-        '''Returns the color as an RGBA namedtuple of ints 0-255.'''
+        '''Returns the color as an Color.Rgba namedtuple of ints 0-255.'''
         return Color.Rgba(self.red, self.green, self.blue, self.alpha)
 
 
