@@ -26,17 +26,7 @@ class Fill:
                  fillrule=FillRule.default()):
         self.color = Color(color) if color != 'none' else color
         self.opacity = opacity # 0.0-1.0
-        self._fillrule = fillrule # FillRule
-
-
-    @property
-    def fillrule(self):
-        return self._fillrule.value
-
-
-    @fillrule.setter
-    def fillrule(self, fillrule):
-        self._fillrule = fillrule
+        self.fillrule = fillrule # FillRule
 
 
     @property

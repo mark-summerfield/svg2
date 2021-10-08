@@ -2,93 +2,26 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-from .Color import Color
-from .Fill import Fill
-from .Stroke import Stroke
+from . import AbstractShape
 
 
-class Line:
+class Line(AbstractShape.AbstractStroke):
 
     def __init__(self, x1, y1, x2, y2, *, stroke=None):
+        super().__init__(stroke)
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
-        self.stroke = stroke
-
-
-    @property
-    def stroke(self):
-        return self._stroke
-
-
-    @stroke.setter
-    def stroke(self, stroke):
-        if isinstance(stroke, str):
-            stroke = Stroke(Color(stroke))
-        elif isinstance(stroke, Color):
-            stroke = Stroke(stroke)
-        self._stroke = stroke
 
 
     @property
     def svg(self):
-        stroke = self.stroke.svg if self.stroke else ''
         return (f'<line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" '
-                f'y2="{self.y2}"{stroke}/>')
+                f'y2="{self.y2}"{self.stroke.svg}/>')
 
 
-class _Stroke_Fill:
-
-    def __init__(self, stroke=None, fill=None):
-        self._stroke = stroke # Stroke
-        self._fill = fill # Fill
-
-
-    @property
-    def stroke(self):
-        return self._stroke
-
-
-    @stroke.setter
-    def stroke(self, stroke):
-        if isinstance(stroke, str):
-            stroke = Stroke(Color(stroke))
-        elif isinstance(stroke, Color):
-            stroke = Stroke(stroke)
-        self._stroke = stroke
-
-
-    @property
-    def fill(self):
-        return self._fill
-
-
-    @fill.setter
-    def fill(self, fill):
-        if isinstance(fill, str):
-            fill = Fill(Color(fill))
-        elif isinstance(fill, Color):
-            fill = Fill(fill)
-        self._fill = fill
-
-
-    @property
-    def _svg(self):
-        stroke = self._stroke.svg if self._stroke else ''
-        fill = self._fill.svg if self._fill else ''
-        return stroke + fill
-
-
-class _Position_Stroke_Fill(_Stroke_Fill):
-
-    def __init__(self, x, y, stroke=None, fill=None):
-        super().__init__(stroke, fill)
-        self.x = x
-        self.y = y
-
-
-class Rect(_Position_Stroke_Fill):
+class Rect(AbstractShape.AbstractPositionStrokeFill):
 
     def __init__(self, x, y, *, width, height, stroke=None, fill=None):
         super().__init__(x, y, stroke, fill)
@@ -102,7 +35,7 @@ class Rect(_Position_Stroke_Fill):
                 f'height="{self.height}"{self._svg}/>')
 
 
-class Circle(_Position_Stroke_Fill):
+class Circle(AbstractShape.AbstractPositionStrokeFill):
 
     def __init__(self, x, y, *, radius, stroke=None, fill=None):
         super().__init__(x, y, stroke, fill)
@@ -118,7 +51,7 @@ class Circle(_Position_Stroke_Fill):
 class Ellipse(Circle):
 
     def __init__(self, x, y, *, xradius, yradius, stroke=None, fill=None):
-        '''.radius is a synonym for .xradius.'''
+        '''`radius` is a synonym for `xradius`.'''
         super().__init__(x, y, radius=xradius, stroke=stroke, fill=fill)
         self.yradius = yradius
 
@@ -141,7 +74,7 @@ class Ellipse(Circle):
                 f'ry="{self.yradius}"{self._svg}/>')
 
 
-class Path(_Stroke_Fill):
+class Path(AbstractShape.AbstractStrokeFill):
 
     def __init__(self, *, stroke=None, fill=None):
         super().__init__(stroke, fill)
