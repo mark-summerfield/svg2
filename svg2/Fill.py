@@ -39,7 +39,8 @@ class Fill:
         self._fillrule = fillrule
 
 
-    def svg(self, _options):
+    @property
+    def svg(self):
         parts = []
         if self.color != Color.BLACK:
             parts.append(f'fill="{self.color}"')

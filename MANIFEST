@@ -7,7 +7,6 @@ svg2/Options.py
 svg2/Shape.py
 svg2/Stroke.py
 svg2/Fill.py
-svg2/Common.py
 svg2/Color.py
 
 t.py

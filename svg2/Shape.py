@@ -31,10 +31,11 @@ class Line:
         self._stroke = stroke
 
 
-    def svg(self, options):
-        stroke = self.stroke.svg(options) if self.stroke else ''
+    @property
+    def svg(self):
+        stroke = self.stroke.svg if self.stroke else ''
         return (f'<line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" '
-                f'y2="{self.y2}"{stroke}/>{options.nl}')
+                f'y2="{self.y2}"{stroke}/>')
 
 
 class _Stroke_Fill:
@@ -72,9 +73,10 @@ class _Stroke_Fill:
         self._fill = fill
 
 
-    def _svg(self, options):
-        stroke = self._stroke.svg(options) if self._stroke else ''
-        fill = self._fill.svg(options) if self._fill else ''
+    @property
+    def _svg(self):
+        stroke = self._stroke.svg if self._stroke else ''
+        fill = self._fill.svg if self._fill else ''
         return stroke + fill
 
 
@@ -94,9 +96,10 @@ class Rect(_Position_Stroke_Fill):
         self.height = height
 
 
-    def svg(self, options):
+    @property
+    def svg(self):
         return (f'<rect x="{self.x}" y="{self.y}" width="{self.width}" '
-                f'height="{self.height}"{self._svg()}/>{options.nl}')
+                f'height="{self.height}"{self._svg}/>')
 
 
 class Circle(_Position_Stroke_Fill):
@@ -106,9 +109,10 @@ class Circle(_Position_Stroke_Fill):
         self.radius = radius
 
 
-    def svg(self, options):
+    @property
+    def svg(self):
         return (f'<circle cx="{self.x}" cy="{self.y}" r="{self.radius}"'
-                f'{self._svg()}/>{options.nl}')
+                f'{self._svg}/>')
 
 
 class Ellipse(Circle):
@@ -129,11 +133,12 @@ class Ellipse(Circle):
         self.radius = xradius
 
 
-    def svg(self, options):
+    @property
+    def svg(self):
         if self.xradius == self.yradius:
-            return super().svg(options)
+            return super().svg
         return (f'<ellipse cx="{self.x}" cy="{self.y}" rx="{self.xradius}" '
-                f'ry="{self.yradius}"{self._svg()}/>{options.nl}')
+                f'ry="{self.yradius}"{self._svg}/>')
 
 
 class Path(_Stroke_Fill):

@@ -47,7 +47,8 @@ class Stroke:
         self.dasharray = dasharray # sequence of ints
 
 
-    def svg(self, _options):
+    @property
+    def svg(self):
         parts = []
         if self.color != Color.BLACK:
             parts = [f'stroke="{self.color}"']

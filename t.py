@@ -127,35 +127,32 @@ class TestSvg(unittest.TestCase):
 
     def test_lines(self):
         line = Svg.Line(10, 20, 15, 35)
-        self.assertEqual(line.svg(Svg.Options()), 
+        self.assertEqual(line.svg, 
                          '<line x1="10" y1="20" x2="15" y2="35"/>')
-        options = Svg.Options.pretty()
-        self.assertEqual(line.svg(options), 
-                         '<line x1="10" y1="20" x2="15" y2="35"/>\n')
         stroke = Svg.Stroke(Color.STEELBLUE, width=1.5)
         line = Svg.Line(10, 20, 15, 35, stroke=stroke)
         self.assertEqual(
-            line.svg(Svg.Options()), 
+            line.svg, 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#4682B4" '
             'stroke-width="1.5"/>')
         line.stroke = Svg.Stroke(Color.GREEN, width=2)
         self.assertEqual(
-            line.svg(options), 
+            line.svg, 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="green" '
-            'stroke-width="2"/>\n')
+            'stroke-width="2"/>')
         line.stroke = Svg.Stroke(Color.MINTCREAM, width=3)
         self.assertEqual(
-            line.svg(options), 
+            line.svg, 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#F5FFFA" '
-            'stroke-width="3"/>\n')
+            'stroke-width="3"/>')
         line.stroke = Svg.Stroke(Color.NAVY)
         self.assertEqual(
-            line.svg(options), 
-            '<line x1="10" y1="20" x2="15" y2="35" stroke="navy"/>\n')
+            line.svg, 
+            '<line x1="10" y1="20" x2="15" y2="35" stroke="navy"/>')
         line.stroke = 'Spring Green'
         self.assertEqual(
-            line.svg(options), 
-            '<line x1="10" y1="20" x2="15" y2="35" stroke="#00FF7F"/>\n')
+            line.svg, 
+            '<line x1="10" y1="20" x2="15" y2="35" stroke="#00FF7F"/>')
 
 
 if __name__ == '__main__':
