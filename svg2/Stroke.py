@@ -5,7 +5,6 @@
 import enum
 
 from .Color import Color
-from .Common import Version
 
 
 @enum.unique
@@ -48,7 +47,7 @@ class Stroke:
         self.dasharray = dasharray # sequence of ints
 
 
-    def svg(self, version=Version.V_1_1, indent=None):
+    def svg(self, _options):
         parts = []
         if self.color != Color.BLACK:
             parts = [f'stroke="{self.color}"']

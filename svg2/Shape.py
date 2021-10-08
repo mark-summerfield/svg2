@@ -3,7 +3,6 @@
 # License: GPLv3
 
 from .Color import Color
-from .Common import Version
 from .Fill import Fill
 from .Stroke import Stroke
 
@@ -15,7 +14,27 @@ class Line:
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
-        self.stroke = stroke # Stroke
+        self.stroke = stroke
+
+
+    @property
+    def stroke(self):
+        return self._stroke
+
+
+    @stroke.setter
+    def stroke(self, stroke):
+        if isinstance(stroke, str):
+            stroke = Stroke(Color(stroke))
+        elif isinstance(stroke, Color):
+            stroke = Stroke(stroke)
+        self._stroke = stroke
+
+
+    def svg(self, options):
+        stroke = self.stroke.svg(options) if self.stroke else ''
+        return (f'<line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" '
+                f'y2="{self.y2}"{stroke}/>{options.nl}')
 
 
 class _Stroke_Fill:
@@ -53,9 +72,9 @@ class _Stroke_Fill:
         self._fill = fill
 
 
-    def _svg(self, version=Version.V_1_1, indent=None):
-        stroke = self._stroke.svg(version, indent) if self._stroke else ''
-        fill = self._fill.svg(version, indent) if self._fill else ''
+    def _svg(self, options):
+        stroke = self._stroke.svg(options) if self._stroke else ''
+        fill = self._fill.svg(options) if self._fill else ''
         return stroke + fill
 
 
@@ -75,10 +94,9 @@ class Rect(_Position_Stroke_Fill):
         self.height = height
 
 
-    def svg(self, version=Version.V_1_1, indent=None):
-        end = '\n' if indent is not None else ''
+    def svg(self, options):
         return (f'<rect x="{self.x}" y="{self.y}" width="{self.width}" '
-                f'height="{self.height}"{self._svg()}/>{end}')
+                f'height="{self.height}"{self._svg()}/>{options.nl}')
 
 
 class Circle(_Position_Stroke_Fill):
@@ -88,10 +106,9 @@ class Circle(_Position_Stroke_Fill):
         self.radius = radius
 
 
-    def svg(self, version=Version.V_1_1, indent=None):
-        end = '\n' if indent is not None else ''
+    def svg(self, options):
         return (f'<circle cx="{self.x}" cy="{self.y}" r="{self.radius}"'
-                f'{self._svg()}/>{end}')
+                f'{self._svg()}/>{options.nl}')
 
 
 class Ellipse(Circle):
@@ -112,12 +129,11 @@ class Ellipse(Circle):
         self.radius = xradius
 
 
-    def svg(self, version=Version.V_1_1, indent=None):
+    def svg(self, options):
         if self.xradius == self.yradius:
-            return super().svg(version, indent)
-        end = '\n' if indent is not None else ''
+            return super().svg(options)
         return (f'<ellipse cx="{self.x}" cy="{self.y}" rx="{self.xradius}" '
-                f'ry="{self.yradius}"{self._svg()}/>{end}')
+                f'ry="{self.yradius}"{self._svg()}/>{options.nl}')
 
 
 class Path(_Stroke_Fill):

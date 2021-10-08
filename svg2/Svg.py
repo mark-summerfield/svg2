@@ -5,7 +5,7 @@
 import gzip
 import io
 
-from .Common import Version
+from .Options import Options, Version
 from .Fill import Fill
 from .Shape import Circle, Ellipse, Line, Path, Rect
 from .Stroke import Stroke
@@ -17,6 +17,7 @@ class Svg: # Class and namespace
     Ellipse = Ellipse
     Fill = Fill
     Line = Line
+    Options = Options
     Path = Path
     Rect = Rect
     Stroke = Stroke
@@ -26,21 +27,11 @@ class Svg: # Class and namespace
         self._items = []
 
 
-    def save(self, filename, *, version=Version.V_1_1, indent=None):
+    def save(self, filename, *, options=None):
         '''Save the drawing as an SVG file.
 
         The file will be compressed if the `filename` ends `.svgz` or
         `.svg.gz`.
-
-        The `version` is the SVG version to output and may be either
-        `Version.V_1_1` (the default) or `Version.V_2_0`.
-
-        If `indent` is None (the default) then the SVG will have the minimum
-        possible whitespace with no newlines or indentation. If `indent` is
-        0, it will have a newline after each close tag or end of tag but no
-        indentation. If `indent` is >= 1, it will have newlines after each
-        close tag or end of tag and within each tag the specified indent (as
-        a count of spaces).
 
         This method has an alias, dump().
 
@@ -50,25 +41,25 @@ class Svg: # Class and namespace
                   if filename[-7:].upper().endswith(('.SVGZ', '.SVG.GZ'))
                   else open)
         with opener(filename, 'wt', encoding='utf-8') as file:
-            self.write(file, version=version, indent=indent)
+            self.write(file, options)
 
 
     dump = save # dump is more Pythonic; save is more meaningful
 
 
-    def dumps(self, *, version=Version.V_1_1, indent=None):
+    def dumps(self, *, options=None):
         '''Return the drawing as an SVG string.
 
         See also save() (for an explanation of the arguments), and
         write().'''
         stream = io.StringIO()
-        self.write(stream, version=version, indent=indent)
+        self.write(stream, options)
         svg = stream.getvalue()
         stream.close()
         return svg
 
 
-    def write(self, stream, *, version, indent):
+    def write(self, stream, *, options):
         '''Save the drawing as an SVG to the given stream.
 
         This is a low-level method: it is more convenient to use save() or
@@ -76,4 +67,5 @@ class Svg: # Class and namespace
 
         It's the caller's responsibility to close the stream if appropriate.
         '''
+        options = options if options is not None else Options()
         raise NotImplementedError

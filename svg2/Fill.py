@@ -5,7 +5,6 @@
 import enum
 
 from .Color import Color
-from .Common import Version
 
 
 @enum.unique
@@ -40,7 +39,7 @@ class Fill:
         self._fillrule = fillrule
 
 
-    def svg(self, version=Version.V_1_1, indent=None):
+    def svg(self, _options):
         parts = []
         if self.color != Color.BLACK:
             parts.append(f'fill="{self.color}"')
