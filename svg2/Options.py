@@ -12,11 +12,9 @@ class Version(enum.Enum):
     V_2_0 = '2'
 
 
-class Options(collections.namedtuple(
-        'Options', 'nl indent sep decimals version',
-        defaults=('', '', ',', 0, Version.V_1_1))):
+class Options(collections.namedtuple('Options', 'nl tab version',
+                                     defaults=('', '', Version.V_1_1))):
 
     @staticmethod
-    def pretty(*, nl='\n', indent='  ', sep=', ', decimals=2,
-               version=Version.V_1_1):
-        return Options(nl, indent, sep, decimals, version)
+    def pretty(*, nl='\n', tab='  ', version=Version.V_1_1):
+        return Options(nl, tab, version)

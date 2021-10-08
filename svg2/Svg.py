@@ -5,8 +5,8 @@
 import gzip
 import io
 
-from .Options import Options, Version
 from .Fill import Fill
+from .Options import Options, Version
 from .Shape import Circle, Ellipse, Line, Path, Rect
 from .Stroke import Stroke
 
@@ -23,7 +23,13 @@ class Svg: # Class and namespace
     Stroke = Stroke
     Version = Version
 
+    class SvgError(Exception):
+        pass
+
+
     def __init__(self):
+        self._namespaces = ['xmlns="http://www.w3.org/2000/svg"']
+        # another common one: 'xmlns:xlink="http://www.w3.org/1999/xlink"'
         self._items = []
 
 
@@ -59,13 +65,31 @@ class Svg: # Class and namespace
         return svg
 
 
-    def write(self, stream, *, options):
-        '''Save the drawing as an SVG to the given stream.
+    def write(self, out, options):
+        '''Save the drawing as an SVG to the given out stream.
 
         This is a low-level method: it is more convenient to use save() or
         dumps().
 
-        It's the caller's responsibility to close the stream if appropriate.
+        It's the caller's responsibility to close the out stream if
+        appropriate.
         '''
         options = options if options is not None else Options()
-        raise NotImplementedError
+        nl = options.nl
+        tab = options.tab
+        version = options.version
+        indent = '' # usually tab * n # n is nesting level
+        # Always use newlines for XML declaration and DOCTYPE
+        out.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        if version is Version.V_1_1:
+            out.write(
+                '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
+                '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n')
+        else:
+            raise Svg.SvgError(f'unsupported SVG version {version.value}')
+        out.write(f'<svg version="{version.value}"')
+        for ns in self._namespaces:
+            out.write(f' {ns}')
+        out.write('>\n')
+        # TODO write content
+        out.write('</svg>\n')
