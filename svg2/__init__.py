@@ -5,5 +5,5 @@
 __version__ = '0.1.1'
 
 
-from .Color import Color, ColorError
+from .Color import Color
 from .Svg import Svg

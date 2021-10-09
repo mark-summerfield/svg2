@@ -8,13 +8,16 @@ import collections
 class Color(int):
     '''Holds an RGBA color with each component 0-255 as a single int.'''
 
+    class Error(Exception):
+        pass
+
     __slots__ = ()
 
     Rgb = collections.namedtuple('Rgb', 'red green blue')
     Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
 
     def __new__(Class, color_or_red, green=0, blue=0, alpha=255):
-        '''Returns a Color or raises a ColorError.
+        '''Returns a Color or raises a Color.Error.
 
         The color is specified either as a single string, e.g.,
             color = Svg.Color('#E4C')
@@ -27,7 +30,7 @@ class Color(int):
             color = Svg.Color(255) # green and blue default to 0;
                                    # alpha to 255
             color = Svg.Color(0, 0x7F, 0, 0x7F)
-        or raises a ColorError.
+        or raises a Color.Error.
 
         For convenience all named colors are predefined, e.g.:
             Svg.Color('blue') == Svg.Color.BLUE
@@ -37,8 +40,9 @@ class Color(int):
                     0 <= blue < 256 and 0 <= alpha < 256):
                 return super().__new__(
                     Class, _int_for_rgba(color_or_red, green, blue, alpha))
-            raise ColorError(f'out of range color value: ({color_or_red!r},'
-                             f'{green!r},{blue!r},{alpha!r})')
+            raise Class.Error(
+                f'out of range color value: ({color_or_red!r},{green!r},'
+                f'{blue!r},{alpha!r})')
         color = ''.join(color_or_red.strip().split()).lower()
         if color.startswith(('rgba(', 'rgb(')):
             FACTOR = 255 / 100.0
@@ -47,21 +51,21 @@ class Color(int):
             color = color[i + 1:].strip(' )')
             values = color.split(',')
             if kind == 'rgb' and len(values) != 3:
-                raise ColorError(f'invalid rgb value: {color_or_red!r}')
+                raise Class.Error(f'invalid rgb value: {color_or_red!r}')
             elif kind == 'rgba' and len(values) != 4:
-                raise ColorError(f'invalid rgba value: {color_or_red!r}')
+                raise Class.Error(f'invalid rgba value: {color_or_red!r}')
             for i in range(3):
                 value = values[i]
                 factor = FACTOR if value.endswith('%') else 1
                 value = round(float(value.strip(' %')) * factor)
                 if not (0 <= value < 256):
-                    raise ColorError(
+                    raise Class.Error(
                         f'out of range color value: {color_or_red!r}')
                 values[i] = value
             if len(values) == 4:
                 value = float(values[-1].strip())
                 if not (0.0 <= value <= 1.0):
-                    raise ColorError(
+                    raise Class.Error(
                         f'out of range alpha value: {color_or_red!r}')
                 values[-1] = round(255.0 * value)
             return super().__new__(Class, _int_for_rgba(*values))
@@ -69,9 +73,10 @@ class Color(int):
             h = color[1:]
             for c in h:
                 if c not in '0123456789abcdefABCDEF':
-                    raise ColorError(f'invalid hex value: {color_or_red!r}')
+                    raise Class.Error(
+                        f'invalid hex value: {color_or_red!r}')
             if len(h) not in {3, 4, 6, 8}:
-                raise ColorError(f'invalid hex length: {color_or_red!r}')
+                raise Class.Error(f'invalid hex length: {color_or_red!r}')
             if len(h) == 3:
                 h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}'
             elif len(h) == 4:
@@ -85,7 +90,7 @@ class Color(int):
                                      int(h[4:6], 16), int(h[6:8], 16)))
         values = _color_for_name(color_or_red)
         if values is None:
-            raise ColorError(f'invalid color: {color_or_red!r}')
+            raise Class.Error(f'invalid color: {color_or_red!r}')
         return super().__new__(Class, _int_for_rgba(*values))
 
 
@@ -234,10 +239,6 @@ class Color(int):
                     f'{self.blue / 255:.{decimals}%}{sep}{alpha})')
         return (f'rgba({self.red}{sep}{self.green}{sep}{self.blue}{sep}'
                 f'{alpha})')
-
-
-class ColorError(Exception):
-    pass
 
 
 def _int_for_rgba(red, green, blue, alpha=255):
@@ -401,7 +402,7 @@ _NAME_FOR_COLOR = {
     (0xF5, 0xF5, 0xF5): 'whitesmoke',
     (0x9A, 0xCD, 0x32): 'yellowgreen',
     (0x66, 0x33, 0x99): 'rebeccapurple',
-    }
+}
 
 for _value, _name in _NAME_FOR_COLOR.items():
     setattr(Color, _name.upper(), Color(*_value))

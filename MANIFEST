@@ -3,6 +3,8 @@ demo_svg2.py
 
 svg2/__init__.py # VERSION
 svg2/Svg.py
+svg2/SvgCommonMixin.py
+svg2/SvgWriteMixin.py
 svg2/Options.py
 svg2/Shape.py
 svg2/AbstractShape.py
