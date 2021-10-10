@@ -126,76 +126,99 @@ class TestSvg(unittest.TestCase):
 
 
     def test_lines(self):
+        raw = Svg.Options(use_style=False)
+        basic = Svg.Options()
+        pretty = Svg.Options.pretty()
         line = Svg.Line(10, 20, 15, 35)
-        self.assertEqual(line.svg(), 
+        self.assertEqual(line.svg('', basic),
                          '<line x1="10" y1="20" x2="15" y2="35"/>')
-        self.assertEqual(line._css(), 
-                         '<line x1="10" y1="20" x2="15" y2="35"/>')
-        self.assertEqual(line._css(sep=' '), 
+        self.assertEqual(line.svg('', pretty),
                          '<line x1="10" y1="20" x2="15" y2="35"/>')
         stroke = Svg.Stroke(Color.STEELBLUE, width=1.5)
         line = Svg.Line(10, 20, 15, 35, stroke=stroke)
         self.assertEqual(
-            line.svg(), 
+            line.svg('', raw), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#4682B4" '
             'stroke-width="1.5"/>')
         self.assertEqual(
-            line._css(), 
-            '<line x1="10" y1="20" x2="15" y2="35" \
-style="stroke:#4682B4;stroke-width:1.5"/>')
-        self.assertEqual(
-            line._css(sep=' '), 
-            '<line x1="10" y1="20" x2="15" y2="35" \
+            line.svg('  ', pretty), 
+            '  <line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #4682B4; stroke-width: 1.5"/>')
         line.stroke = Svg.Stroke(Color.GREEN, width=2)
         self.assertEqual(
-            line.svg(), 
+            line.svg('', raw), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="green" '
             'stroke-width="2"/>')
         self.assertEqual(
-            line._css(), 
+            line.svg('', basic), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:green;stroke-width:2"/>')
         self.assertEqual(
-            line._css(sep=' '), 
-            '<line x1="10" y1="20" x2="15" y2="35" \
+            line.svg('  ', pretty), 
+            '  <line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: green; stroke-width: 2"/>')
         line.stroke = Svg.Stroke(Color.MINTCREAM, width=3)
         self.assertEqual(
-            line.svg(), 
+            line.svg('', raw), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#F5FFFA" '
             'stroke-width="3"/>')
         self.assertEqual(
-            line._css(), 
+            line.svg('', basic), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:#F5FFFA;stroke-width:3"/>')
         self.assertEqual(
-            line._css(sep=' '), 
-            '<line x1="10" y1="20" x2="15" y2="35" \
+            line.svg('  ', pretty), 
+            '  <line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #F5FFFA; stroke-width: 3"/>')
         line.stroke = Svg.Stroke(Color.NAVY)
         self.assertEqual(
-            line.svg(), 
+            line.svg('', raw), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="navy"/>')
         self.assertEqual(
-            line._css(), 
+            line.svg('', basic), 
             '<line x1="10" y1="20" x2="15" y2="35" style="stroke:navy"/>')
         sep = ' '
         self.assertEqual(
-            line._css(sep=sep), 
-            '<line x1="10" y1="20" x2="15" y2="35" style="stroke: navy"/>')
+            line.svg('  ', pretty), 
+            '  <line x1="10" y1="20" x2="15" y2="35" style="stroke: '
+            'navy"/>')
         line.stroke = 'Spring Green'
         self.assertEqual(
-            line.svg(), 
+            line.svg('', raw), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#00FF7F"/>')
         self.assertEqual(
-            line._css(), 
+            line.svg('', basic), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:#00FF7F"/>')
         self.assertEqual(
-            line._css(sep=sep), 
-            '<line x1="10" y1="20" x2="15" y2="35" \
+            line.svg('    ', pretty), 
+            '    <line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #00FF7F"/>')
+
+
+    def test_dumps(self):
+        pretty = Svg.Options.pretty()
+        svg = Svg()
+        self.assertEqual(svg.dumps(), '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+</svg>
+''')
+        svg = Svg(title='Test & etc.')
+        self.assertEqual(svg.dumps(), '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+<title>Test &amp; etc.</title></svg>
+''')
+        self.assertEqual(svg.dumps(options=pretty), '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+<title>Test &amp; etc.</title>
+</svg>
+''')
 
 
 if __name__ == '__main__':

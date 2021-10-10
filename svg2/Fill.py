@@ -30,7 +30,7 @@ class Fill:
         self.fillrule = fillrule # FillRule
 
 
-    def svg(self):
+    def svg(self, options):
         parts = []
         if self.color != Color.BLACK:
             parts.append(f'fill="{self.color}"')
@@ -43,7 +43,7 @@ class Fill:
         return ''
 
 
-    def _css(self, sep=''):
+    def css(self, sep):
         parts = []
         if self.color != Color.BLACK:
             parts.append(f'fill:{sep}{self.color}')

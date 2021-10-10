@@ -61,14 +61,9 @@ class Mixin:
         It's the caller's responsibility to close the `out` stream if
         appropriate.
         '''
-        nl = options.nl
-        tab = options.tab
-        version = options.version
-        use_style = options.use_style
-        sep = options.sep
-        indent = '' # usually tab * n # n is nesting level
         # Always use newlines for XML declaration and DOCTYPE (ignoring nl)
         out.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        version = options.version
         if version is Version.V_1_1:
             out.write(
                 '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
@@ -81,9 +76,13 @@ class Mixin:
         # TODO write any other <svg> attributes, e.g., x, y, width, height,
         # viewBox, etc.
         out.write('>\n')
+        nl = options.nl
         if self.title:
             out.write(f'<title>{esc(self.title)}</title>{nl}')
         if self.desc:
             out.write(f'<desc>{esc(self.desc)}</desc>{nl}')
-        # TODO write content
+        for item in self._items:
+            out.write(item.svg('', options))
+            if nl:
+                out.write(nl)
         out.write('</svg>\n')

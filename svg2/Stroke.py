@@ -47,7 +47,7 @@ class Stroke:
         self.dasharray = dasharray # sequence of ints
 
 
-    def svg(self):
+    def svg(self, options):
         parts = []
         if self.color != Color.BLACK:
             parts = [f'stroke="{self.color}"']
@@ -67,7 +67,7 @@ class Stroke:
         return ''
 
 
-    def _css(self, sep=''):
+    def css(self, sep):
         parts = []
         if self.color != Color.BLACK:
             parts = [f'stroke:{sep}{self.color}']

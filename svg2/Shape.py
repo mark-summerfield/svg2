@@ -17,17 +17,20 @@ class Line(AbstractShape.AbstractStroke):
         self.y2 = y2
 
 
-    def svg(self):
-        return (f'<line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" '
-                f'y2="{self.y2}"{self.stroke.svg()}/>')
+    def svg(self, indent, options):
+        if options.use_style:
+            return self._css(indent, options.sep)
+        return (f'{indent}<line x1="{self.x1}" y1="{self.y1}" '
+                f'x2="{self.x2}" y2="{self.y2}"'
+                f'{self.stroke.svg(options)}/>')
 
 
-    def _css(self, sep=''):
-        css = self.stroke._css(sep)
+    def _css(self, indent, sep):
+        css = self.stroke.css(sep)
         if css:
             css = f' style="{css}"'
-        return (f'<line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" '
-                f'y2="{self.y2}"{css}/>')
+        return (f'{indent}<line x1="{self.x1}" y1="{self.y1}" '
+                f'x2="{self.x2}" y2="{self.y2}"{css}/>')
 
 
 class Rect(AbstractShape.AbstractPositionStrokeFill):
@@ -40,17 +43,20 @@ class Rect(AbstractShape.AbstractPositionStrokeFill):
         self.height = height
 
 
-    def svg(self):
-        return (f'<rect x="{self.x}" y="{self.y}" width="{self.width}" '
-                f'height="{self.height}"{super().svg()}/>')
+    def svg(self, indent, options):
+        if options.use_style:
+            return self._css(indent, options.sep)
+        return (f'{indent}<rect x="{self.x}" y="{self.y}" '
+                f'width="{self.width}" height="{self.height}"'
+                f'{super().svg(indent, options)}/>')
 
 
-    def _css(self, sep=''):
-        css = super()._css(sep)
+    def _css(self, indent, sep):
+        css = super()._css(indent, sep)
         if css:
             css = f' style="{css}"'
-        return (f'<rect x="{self.x}" y="{self.y}" width="{self.width}" '
-                f'height="{self.height}"{css}/>')
+        return (f'{indent}<rect x="{self.x}" y="{self.y}" '
+                f'width="{self.width}" height="{self.height}"{css}/>')
 
 
 class Circle(AbstractShape.AbstractPositionStrokeFill):
@@ -62,17 +68,19 @@ class Circle(AbstractShape.AbstractPositionStrokeFill):
         self.radius = radius
 
 
-    def svg(self):
-        return (f'<circle cx="{self.x}" cy="{self.y}" r="{self.radius}"'
-                f'{super().svg()}/>')
+    def svg(self, indent, options):
+        if options.use_style:
+            return self._css(indent, options.sep)
+        return (f'{indent}<circle cx="{self.x}" cy="{self.y}" '
+                f'r="{self.radius}"{super().svg(indent, options)}/>')
 
 
-    def _css(self, sep=''):
-        css = super()._css(sep)
+    def _css(self, indent, sep):
+        css = super()._css(indent, sep)
         if css:
             css = f' style="{css}"'
-        return (f'<circle cx="{self.x}" cy="{self.y}" r="{self.radius}"'
-                f'{css}/>')
+        return (f'{indent}<circle cx="{self.x}" cy="{self.y}" '
+                f'r="{self.radius}"{css}/>')
 
 
 class Ellipse(Circle):
@@ -95,18 +103,22 @@ class Ellipse(Circle):
         self.radius = xradius
 
 
-    def svg(self):
+    def svg(self, indent, options):
         if self.xradius == self.yradius:
-            return super().svg
-        return (f'<ellipse cx="{self.x}" cy="{self.y}" rx="{self.xradius}" '
-                f'ry="{self.yradius}"{super().svg()}/>')
+            return super().svg(indent, options)
+        if options.use_style:
+            return self._css(indent, options.sep)
+        return (f'{indent}<ellipse cx="{self.x}" cy="{self.y}" '
+                f'rx="{self.xradius}" ry="{self.yradius}"'
+                f'{super().svg(indent, options)}/>')
 
 
-    def _css(self, sep=''):
-        if self.xradius == self.yradius:
-            return super().svg
-        return (f'<ellipse cx="{self.x}" cy="{self.y}" rx="{self.xradius}" '
-                f'ry="{self.yradius}"{super()._css(sep)}/>')
+    def _css(self, indent, sep):
+        css = super()._css(indent, sep)
+        if css:
+            css = f' style="{css}"'
+        return (f'{indent}<ellipse cx="{self.x}" cy="{self.y}" '
+                f'rx="{self.xradius}" ry="{self.yradius}"{css}/>')
 
 
 class Path(AbstractShape.AbstractStrokeFill):
