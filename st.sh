@@ -1,6 +1,6 @@
 #!/bin/bash
 cd svg2
-tokei -f -tPython
+tokei -slines -f -tPython
 cd ..
 unrecognized.py -q demo_svg2.py svg2/*.py
 python3 -m flake8 \
