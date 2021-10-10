@@ -34,8 +34,8 @@ class AbstractStroke:
         return self.stroke.svg()
 
 
-    def css(self, *, sep=''):
-        return self.stroke.css(sep=sep)
+    def _css(self, sep=''):
+        return self.stroke._css(sep)
 
 
 class AbstractStrokeFill(AbstractStroke):
@@ -68,9 +68,9 @@ class AbstractStrokeFill(AbstractStroke):
         return self.stroke.svg() + self.fill.svg()
 
 
-    def css(self, *, sep=''):
-        stroke = self.stroke.css(sep=sep)
-        fill = self.fill.css(sep=sep)
+    def _css(self, sep=''):
+        stroke = self.stroke._css(sep)
+        fill = self.fill._css(sep)
         if stroke and fill:
             return stroke + f';{sep}' + fill
         return stroke + fill

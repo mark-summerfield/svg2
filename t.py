@@ -129,9 +129,9 @@ class TestSvg(unittest.TestCase):
         line = Svg.Line(10, 20, 15, 35)
         self.assertEqual(line.svg(), 
                          '<line x1="10" y1="20" x2="15" y2="35"/>')
-        self.assertEqual(line.css(), 
+        self.assertEqual(line._css(), 
                          '<line x1="10" y1="20" x2="15" y2="35"/>')
-        self.assertEqual(line.css(sep=' '), 
+        self.assertEqual(line._css(sep=' '), 
                          '<line x1="10" y1="20" x2="15" y2="35"/>')
         stroke = Svg.Stroke(Color.STEELBLUE, width=1.5)
         line = Svg.Line(10, 20, 15, 35, stroke=stroke)
@@ -140,11 +140,11 @@ class TestSvg(unittest.TestCase):
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#4682B4" '
             'stroke-width="1.5"/>')
         self.assertEqual(
-            line.css(), 
+            line._css(), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:#4682B4;stroke-width:1.5"/>')
         self.assertEqual(
-            line.css(sep=' '), 
+            line._css(sep=' '), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #4682B4; stroke-width: 1.5"/>')
         line.stroke = Svg.Stroke(Color.GREEN, width=2)
@@ -153,11 +153,11 @@ style="stroke: #4682B4; stroke-width: 1.5"/>')
             '<line x1="10" y1="20" x2="15" y2="35" stroke="green" '
             'stroke-width="2"/>')
         self.assertEqual(
-            line.css(), 
+            line._css(), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:green;stroke-width:2"/>')
         self.assertEqual(
-            line.css(sep=' '), 
+            line._css(sep=' '), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: green; stroke-width: 2"/>')
         line.stroke = Svg.Stroke(Color.MINTCREAM, width=3)
@@ -166,11 +166,11 @@ style="stroke: green; stroke-width: 2"/>')
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#F5FFFA" '
             'stroke-width="3"/>')
         self.assertEqual(
-            line.css(), 
+            line._css(), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:#F5FFFA;stroke-width:3"/>')
         self.assertEqual(
-            line.css(sep=' '), 
+            line._css(sep=' '), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #F5FFFA; stroke-width: 3"/>')
         line.stroke = Svg.Stroke(Color.NAVY)
@@ -178,22 +178,22 @@ style="stroke: #F5FFFA; stroke-width: 3"/>')
             line.svg(), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="navy"/>')
         self.assertEqual(
-            line.css(), 
+            line._css(), 
             '<line x1="10" y1="20" x2="15" y2="35" style="stroke:navy"/>')
         sep = ' '
         self.assertEqual(
-            line.css(sep=sep), 
+            line._css(sep=sep), 
             '<line x1="10" y1="20" x2="15" y2="35" style="stroke: navy"/>')
         line.stroke = 'Spring Green'
         self.assertEqual(
             line.svg(), 
             '<line x1="10" y1="20" x2="15" y2="35" stroke="#00FF7F"/>')
         self.assertEqual(
-            line.css(), 
+            line._css(), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke:#00FF7F"/>')
         self.assertEqual(
-            line.css(sep=sep), 
+            line._css(sep=sep), 
             '<line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #00FF7F"/>')
 

@@ -67,7 +67,7 @@ class Stroke:
         return ''
 
 
-    def css(self, *, sep=''):
+    def _css(self, sep=''):
         parts = []
         if self.color != Color.BLACK:
             parts = [f'stroke:{sep}{self.color}']

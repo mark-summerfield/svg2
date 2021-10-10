@@ -22,8 +22,8 @@ class Line(AbstractShape.AbstractStroke):
                 f'y2="{self.y2}"{self.stroke.svg()}/>')
 
 
-    def css(self, *, sep=''):
-        css = self.stroke.css(sep=sep)
+    def _css(self, sep=''):
+        css = self.stroke._css(sep)
         if css:
             css = f' style="{css}"'
         return (f'<line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" '
@@ -45,8 +45,8 @@ class Rect(AbstractShape.AbstractPositionStrokeFill):
                 f'height="{self.height}"{super().svg()}/>')
 
 
-    def css(self, *, sep=''):
-        css = super().css(sep=sep)
+    def _css(self, sep=''):
+        css = super()._css(sep)
         if css:
             css = f' style="{css}"'
         return (f'<rect x="{self.x}" y="{self.y}" width="{self.width}" '
@@ -67,8 +67,8 @@ class Circle(AbstractShape.AbstractPositionStrokeFill):
                 f'{super().svg()}/>')
 
 
-    def css(self, *, sep=''):
-        css = super().css(sep=sep)
+    def _css(self, sep=''):
+        css = super()._css(sep)
         if css:
             css = f' style="{css}"'
         return (f'<circle cx="{self.x}" cy="{self.y}" r="{self.radius}"'
@@ -102,11 +102,11 @@ class Ellipse(Circle):
                 f'ry="{self.yradius}"{super().svg()}/>')
 
 
-    def css(self, *, sep=''):
+    def _css(self, sep=''):
         if self.xradius == self.yradius:
             return super().svg
         return (f'<ellipse cx="{self.x}" cy="{self.y}" rx="{self.xradius}" '
-                f'ry="{self.yradius}"{super().css(sep=sep)}/>')
+                f'ry="{self.yradius}"{super()._css(sep)}/>')
 
 
 class Path(AbstractShape.AbstractStrokeFill):
