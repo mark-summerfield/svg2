@@ -402,7 +402,7 @@ _NAME_FOR_COLOR = {
     (0xF5, 0xF5, 0xF5): 'whitesmoke',
     (0x9A, 0xCD, 0x32): 'yellowgreen',
     (0x66, 0x33, 0x99): 'rebeccapurple',
-}
+    }
 
 for _value, _name in _NAME_FOR_COLOR.items():
     setattr(Color, _name.upper(), Color(*_value))
