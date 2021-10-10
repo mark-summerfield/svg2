@@ -12,9 +12,33 @@ class Version(enum.Enum):
     V_2_0 = '2'
 
 
-class Options(collections.namedtuple('Options', 'nl tab version',
-                                     defaults=('', '', Version.V_1_1))):
+class Options(collections.namedtuple(
+              'Options', 'use_style sep nl tab version',
+              defaults=(True, '', '', '', Version.V_1_1))):
+    '''Options used for `Svg.save()` (`Svg.dump()`), `Svg.dumps()` and
+    `Svg.write()`.
+    If `use_style` is `True` (the default) where possible stroke and fill
+    will be set in a `style="..."` attribute rather than as individual
+    attributes (`stroke="..." fill-opacity="...").
+    The `sep` is `''` by default and is used between style colons and after
+    style semi-colons. For example with `sep=''`:
+        style="stroke:blue;stroke-width:1.5;fill:red"
+    whereas with `sep=' '`:
+        style="stroke: blue; stroke-width: 1.5; fill: red"
+    The `nl` is used for newlines and defaults to `''`, so normally the only
+    newlines used follow the `<?xml...` and `<DOCTYPE...` lines. use
+    `nl='\\n' for a newline after each tagged item.
+    The `tab` is used as the indent at each level and defaults to `''`, so
+    normally there is no indent. This only makes sense if `nl='\\n'`, in
+    which case use `tab='  '` or similar.
+
+    Use `Options()` (or just accept the default of `None` which will do the
+    same) to get the most compact XML possible.
+
+    Use `Options.pretty()` to get sensible defaults for human readability.
+    '''
 
     @staticmethod
-    def pretty(*, nl='\n', tab='  ', version=Version.V_1_1):
-        return Options(nl, tab, version)
+    def pretty(*, use_style=True, sep=' ', nl='\n', tab='  ',
+               version=Version.V_1_1):
+        return Options(use_style, sep, nl, tab, version)

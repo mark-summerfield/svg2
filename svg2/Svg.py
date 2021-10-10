@@ -11,7 +11,9 @@ class Svg(SvgCommonMixin.Mixin, SvgWriteMixin.Mixin): # Class and namespace
         pass
 
 
-    def __init__(self):
+    def __init__(self, title=None, desc=None):
+        self.title = title
+        self.desc = desc
         self._namespaces = ['xmlns="http://www.w3.org/2000/svg"']
         # another common one: 'xmlns:xlink="http://www.w3.org/1999/xlink"'
         # TODO add automatically as needed or provide an API?

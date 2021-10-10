@@ -4,6 +4,8 @@
 
 import gzip
 import io
+from xml.sax.saxutils import escape as esc
+# from xml.sax.saxutils import quoteattr as qa
 
 from .Options import Options, Version
 
@@ -62,6 +64,8 @@ class Mixin:
         nl = options.nl
         tab = options.tab
         version = options.version
+        use_style = options.use_style
+        sep = options.sep
         indent = '' # usually tab * n # n is nesting level
         # Always use newlines for XML declaration and DOCTYPE (ignoring nl)
         out.write('<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -77,5 +81,9 @@ class Mixin:
         # TODO write any other <svg> attributes, e.g., x, y, width, height,
         # viewBox, etc.
         out.write('>\n')
+        if self.title:
+            out.write(f'<title>{esc(self.title)}</title>{nl}')
+        if self.desc:
+            out.write(f'<desc>{esc(self.desc)}</desc>{nl}')
         # TODO write content
         out.write('</svg>\n')

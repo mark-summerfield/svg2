@@ -30,16 +30,19 @@ class AbstractStroke:
         self._stroke = stroke
 
 
-    @property
-    def _svg(self):
-        return self.stroke.svg
+    def svg(self):
+        return self.stroke.svg()
 
 
-class AbstractStrokeFill:
+    def css(self, *, sep=''):
+        return self.stroke.css(sep=sep)
+
+
+class AbstractStrokeFill(AbstractStroke):
 
     def __init__(self, stroke=None, fill=None):
         super().__init__(stroke)
-        self._fill = fill # Fill
+        self.fill = fill # Fill
 
 
     @property
@@ -49,7 +52,9 @@ class AbstractStrokeFill:
 
     @fill.setter
     def fill(self, fill):
-        '''Can set with a Fill, Color, or color string.'''
+        '''Can set with a Fill, Color, or color string.
+        Use 'none' for transparent.
+        '''
         if fill is None:
             fill = Fill()
         elif isinstance(fill, str):
@@ -59,9 +64,16 @@ class AbstractStrokeFill:
         self._fill = fill
 
 
-    @property
-    def _svg(self):
-        return self.stroke.svg + self.fill.svg
+    def svg(self):
+        return self.stroke.svg() + self.fill.svg()
+
+
+    def css(self, *, sep=''):
+        stroke = self.stroke.css(sep=sep)
+        fill = self.fill.css(sep=sep)
+        if stroke and fill:
+            return stroke + f';{sep}' + fill
+        return stroke + fill
 
 
 class AbstractPositionStrokeFill(AbstractStrokeFill):

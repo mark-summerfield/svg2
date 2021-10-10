@@ -24,20 +24,33 @@ class Fill:
 
     def __init__(self, color='none', *, opacity=1,
                  fillrule=FillRule.default()):
-        self.color = Color(color) if color != 'none' else color
+        self.color = (color if isinstance(color, Color) or color == 'none'
+                      else Color(color))
         self.opacity = opacity # 0.0-1.0
         self.fillrule = fillrule # FillRule
 
 
-    @property
     def svg(self):
         parts = []
         if self.color != Color.BLACK:
             parts.append(f'fill="{self.color}"')
         if self.opacity != 1:
             parts.append(f'fill-opacity="{self.opacity}"')
-        if self._fillrule is not FillRule.default():
-            parts.append(f'fill-rule="{self._fillrule.value}"')
+        if self.fillrule is not FillRule.default():
+            parts.append(f'fill-rule="{self.fillrule.value}"')
         if parts:
             return ' ' + ' '.join(parts)
+        return ''
+
+
+    def css(self, *, sep=''):
+        parts = []
+        if self.color != Color.BLACK:
+            parts.append(f'fill:{sep}{self.color}')
+        if self.opacity != 1:
+            parts.append(f'fill-opacity:{sep}{self.opacity}')
+        if self.fillrule is not FillRule.default():
+            parts.append(f'fill-rule={sep}{self.fillrule.value}')
+        if parts:
+            return f';{sep}'.join(parts)
         return ''
