@@ -9,11 +9,11 @@ class Group:
         self._items = []
 
 
-    def svg(self, indent, options):
+    def write(self, out, indent, options):
         nl = options.nl
         parts = [f'<g id="{self.id}">']
         indent += options.tab
         for item in self._items:
             parts.append(item.svg(indent, options))
         parts.append(f'</g>{nl}')
-        return f'{nl}'.join(parts)
+        out.write(f'{nl}'.join(parts))

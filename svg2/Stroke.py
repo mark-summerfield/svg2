@@ -49,39 +49,37 @@ class Stroke:
 
     def svg(self, options):
         parts = []
-        if self.color != Color.BLACK:
-            parts = [f'stroke="{self.color}"']
-        if self.width != 1:
-            parts.append(f'stroke-width="{self.width}"')
-        if self.opacity != 1:
-            parts.append(f'stroke-opacity="{self.opacity}"')
-        if self.linecap is not LineCap.default():
-            parts.append(f'stroke-linecap="{self.linecap.value}"')
-        if self.linejoin is not LineJoin.default():
-            parts.append(f'stroke-linejoin="{self.linejoin.value}"')
-        if self.dasharray:
-            dashes = ' '.join(self.dasharray)
-            parts.append(f'stroke-dasharray="{dashes}"')
-        if parts:
-            return ' ' + ' '.join(parts)
-        return ''
-
-
-    def css(self, sep):
-        parts = []
-        if self.color != Color.BLACK:
-            parts = [f'stroke:{sep}{self.color}']
-        if self.width != 1:
-            parts.append(f'stroke-width:{sep}{self.width}')
-        if self.opacity != 1:
-            parts.append(f'stroke-opacity:{sep}{self.opacity}')
-        if self.linecap is not LineCap.default():
-            parts.append(f'stroke-linecap:{sep}{self.linecap.value}')
-        if self.linejoin is not LineJoin.default():
-            parts.append(f'stroke-linejoin:{sep}{self.linejoin.value}')
-        if self.dasharray:
-            dashes = ' '.join(self.dasharray)
-            parts.append(f'stroke-dasharray:{sep}{dashes}')
-        if parts:
-            return f';{sep}'.join(parts)
+        if options.use_style:
+            sep = options.sep
+            if self.color != Color.BLACK:
+                parts = [f'stroke:{sep}{self.color}']
+            if self.width != 1:
+                parts.append(f'stroke-width:{sep}{self.width}')
+            if self.opacity != 1:
+                parts.append(f'stroke-opacity:{sep}{self.opacity}')
+            if self.linecap is not LineCap.default():
+                parts.append(f'stroke-linecap:{sep}{self.linecap.value}')
+            if self.linejoin is not LineJoin.default():
+                parts.append(f'stroke-linejoin:{sep}{self.linejoin.value}')
+            if self.dasharray:
+                dashes = ' '.join(self.dasharray)
+                parts.append(f'stroke-dasharray:{sep}{dashes}')
+            if parts:
+                return f';{sep}'.join(parts)
+        else:
+            if self.color != Color.BLACK:
+                parts = [f'stroke="{self.color}"']
+            if self.width != 1:
+                parts.append(f'stroke-width="{self.width}"')
+            if self.opacity != 1:
+                parts.append(f'stroke-opacity="{self.opacity}"')
+            if self.linecap is not LineCap.default():
+                parts.append(f'stroke-linecap="{self.linecap.value}"')
+            if self.linejoin is not LineJoin.default():
+                parts.append(f'stroke-linejoin="{self.linejoin.value}"')
+            if self.dasharray:
+                dashes = ' '.join(self.dasharray)
+                parts.append(f'stroke-dasharray="{dashes}"')
+            if parts:
+                return ' '.join(parts)
         return ''

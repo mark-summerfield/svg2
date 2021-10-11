@@ -30,9 +30,8 @@ class AbstractStroke:
         self._stroke = stroke
 
 
-    def svg(self, _indent, options):
-        return (self.stroke.css(options.sep) if options.use_style else
-                self.stroke.svg(options))
+    def svg(self, options):
+        return self.stroke.svg(options)
 
 
 class AbstractStrokeFill(AbstractStroke):
@@ -61,18 +60,13 @@ class AbstractStrokeFill(AbstractStroke):
         self._fill = fill
 
 
-    def svg(self, indent, options):
-        if options.use_style:
-            return self._css(options.sep)
-        return self.stroke.svg(options) + self.fill.svg(options)
-
-
-    def _css(self, sep):
-        stroke = self.stroke.css(sep)
-        fill = self.fill.css(sep)
+    def svg(self, options):
+        stroke = self.stroke.svg(options)
+        fill = self.fill.svg(options)
         if stroke and fill:
-            return stroke + f';{sep}' + fill
-        return stroke + fill
+            sep = f';{options.sep}' if options.use_style else ' '
+            return stroke + sep + fill
+        return stroke + fill # one or both are ''
 
 
 class AbstractPositionStrokeFill(AbstractStrokeFill):

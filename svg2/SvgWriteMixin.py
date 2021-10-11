@@ -82,7 +82,5 @@ class Mixin:
         if self.desc:
             out.write(f'<desc>{esc(self.desc)}</desc>{nl}')
         for item in self._items:
-            out.write(item.svg('', options))
-            if nl:
-                out.write(nl)
+            item.write(out, '', options)
         out.write('</svg>\n')

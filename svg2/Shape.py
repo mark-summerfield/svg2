@@ -5,7 +5,13 @@
 from . import AbstractShape
 
 
-class Line(AbstractShape.AbstractStroke):
+class WriteMixin:
+
+    def write(self, out, indent, options):
+        out.write(self.svg(indent, options))
+
+
+class Line(AbstractShape.AbstractStroke, WriteMixin):
 
     def __init__(self, x1, y1, x2, y2, *, stroke=None):
         '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
@@ -18,22 +24,12 @@ class Line(AbstractShape.AbstractStroke):
 
 
     def svg(self, indent, options):
-        if options.use_style:
-            return self._css(indent, options.sep)
+        style = _stylize(options.use_style, self.stroke.svg(options))
         return (f'{indent}<line x1="{self.x1}" y1="{self.y1}" '
-                f'x2="{self.x2}" y2="{self.y2}"'
-                f'{self.stroke.svg(options)}/>')
+                f'x2="{self.x2}" y2="{self.y2}"{style}/>{options.nl}')
 
 
-    def _css(self, indent, sep):
-        css = self.stroke.css(sep)
-        if css:
-            css = f' style="{css}"'
-        return (f'{indent}<line x1="{self.x1}" y1="{self.y1}" '
-                f'x2="{self.x2}" y2="{self.y2}"{css}/>')
-
-
-class Rect(AbstractShape.AbstractPositionStrokeFill):
+class Rect(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
 
     def __init__(self, x, y, *, width, height, stroke=None, fill=None):
         '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
@@ -44,19 +40,10 @@ class Rect(AbstractShape.AbstractPositionStrokeFill):
 
 
     def svg(self, indent, options):
-        if options.use_style:
-            return self._css(indent, options.sep)
+        style = _stylize(options.use_style, super().svg(options))
         return (f'{indent}<rect x="{self.x}" y="{self.y}" '
-                f'width="{self.width}" height="{self.height}"'
-                f'{super().svg(indent, options)}/>')
-
-
-    def _css(self, indent, sep):
-        css = super()._css(indent, sep)
-        if css:
-            css = f' style="{css}"'
-        return (f'{indent}<rect x="{self.x}" y="{self.y}" '
-                f'width="{self.width}" height="{self.height}"{css}/>')
+                f'width="{self.width}" height="{self.height}"{style}/>'
+                f'{options.nl}')
 
 
 class Circle(AbstractShape.AbstractPositionStrokeFill):
@@ -69,18 +56,9 @@ class Circle(AbstractShape.AbstractPositionStrokeFill):
 
 
     def svg(self, indent, options):
-        if options.use_style:
-            return self._css(indent, options.sep)
+        style = _stylize(options.use_style, super().svg(options))
         return (f'{indent}<circle cx="{self.x}" cy="{self.y}" '
-                f'r="{self.radius}"{super().svg(indent, options)}/>')
-
-
-    def _css(self, indent, sep):
-        css = super()._css(indent, sep)
-        if css:
-            css = f' style="{css}"'
-        return (f'{indent}<circle cx="{self.x}" cy="{self.y}" '
-                f'r="{self.radius}"{css}/>')
+                f'r="{self.radius}"{style}/>{options.nl}')
 
 
 class Ellipse(Circle):
@@ -106,19 +84,22 @@ class Ellipse(Circle):
     def svg(self, indent, options):
         if self.xradius == self.yradius:
             return super().svg(indent, options)
-        if options.use_style:
-            return self._css(indent, options.sep)
+        style = _stylize(options.use_style, super().svg(options))
         return (f'{indent}<ellipse cx="{self.x}" cy="{self.y}" '
                 f'rx="{self.xradius}" ry="{self.yradius}"'
-                f'{super().svg(indent, options)}/>')
+                f'{style}/>{options.nl}')
 
 
-    def _css(self, indent, sep):
-        css = super()._css(indent, sep)
-        if css:
-            css = f' style="{css}"'
-        return (f'{indent}<ellipse cx="{self.x}" cy="{self.y}" '
-                f'rx="{self.xradius}" ry="{self.yradius}"{css}/>')
+class Polygon(AbstractShape.AbstractStrokeFill):
+
+    def __init__(self, *, stroke=None, fill=None):
+        pass # TODO
+
+
+class Polyline(AbstractShape.AbstractStrokeFill):
+
+    def __init__(self, *, stroke=None, fill=None):
+        pass # TODO
 
 
 class Path(AbstractShape.AbstractStrokeFill):
@@ -127,4 +108,12 @@ class Path(AbstractShape.AbstractStrokeFill):
         '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
         '#ABC123'). The fill can be a Fill, Color, or color string.'''
         super().__init__(stroke, fill)
-        self.d = [] # sequence of drawing commands
+        self._d = [] # sequence of drawing commands
+
+    # TODO
+
+
+def _stylize(use_style, style):
+    if use_style:
+        return f' style="{style}"' if style else ''
+    return style if style.startswith((' ', ';')) else f' {style}'
