@@ -7,10 +7,6 @@ from . import SvgCommonMixin, SvgWriteMixin
 
 class Svg(SvgCommonMixin.Mixin, SvgWriteMixin.Mixin): # Class and namespace
 
-    class Error(Exception): # Must be here for: except svg2.Svg.Error as err
-        pass
-
-
     def __init__(self, title=None, desc=None):
         self.title = title
         self.desc = desc

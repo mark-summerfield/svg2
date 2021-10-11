@@ -125,7 +125,7 @@ class TestSvg(unittest.TestCase):
         self.assertEqual(color.rgba, Color.Rgba(0xAb, 0xCD, 0xEF, 0x12))
 
 
-    def test_lines(self):
+    def test_line(self):
         raw = Svg.Options(use_style=False)
         basic = Svg.Options()
         pretty = Svg.Options.pretty()
@@ -194,6 +194,24 @@ style="stroke:#00FF7F"/>')
             line.svg('    ', pretty), 
             '    <line x1="10" y1="20" x2="15" y2="35" \
 style="stroke: #00FF7F"/>\n')
+
+
+    def test_polyline(self):
+        basic = Svg.Options()
+        pretty = Svg.Options.pretty()
+        polyline = Svg.Polyline(stroke=Svg.Stroke(Color.MAGENTA, width=1.5),
+                                fill=Color.MINTCREAM)
+        self.assertEqual(polyline.svg('', basic), '')
+        points = [50, 375, 150, 375, 150, 325, 250, 325, 250, 375]
+        polyline = Svg.Polyline(points,
+                                stroke=Svg.Stroke(Color.MAGENTA, width=1.5),
+                                fill=Color.MINTCREAM)
+        self.assertEqual(polyline.svg('', basic), '\
+<polyline points="50 375 150 375 150 325 250 325 250 375" \
+style="stroke:#F0F;stroke-width:1.5;fill:#F5FFFA"/>')
+        self.assertEqual(polyline.svg('', pretty), '\
+<polyline points="50,375 150,375 150,325 250,325 250,375" \
+style="stroke: #F0F; stroke-width: 1.5; fill: #F5FFFA"/>\n')
 
 
     def test_dumps(self):

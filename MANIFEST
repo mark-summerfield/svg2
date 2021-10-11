@@ -11,7 +11,9 @@ svg2/Shape.py
 svg2/AbstractShape.py
 svg2/Stroke.py
 svg2/Fill.py
+svg2/FontFace.py
 svg2/Color.py
+svg2/Error.py
 
 t.py
 

@@ -5,9 +5,12 @@
 import gzip
 import io
 from xml.sax.saxutils import escape as esc
+
+from .Error import Error
+from .Options import Options, Version
+
 # from xml.sax.saxutils import quoteattr as qa
 
-from .Options import Options, Version
 
 
 class Mixin:
@@ -69,7 +72,7 @@ class Mixin:
                 '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
                 '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n')
         else:
-            raise self.Error(f'unsupported SVG version {version.value}')
+            raise Error(f'unsupported SVG version {version.value}')
         out.write(f'<svg version="{version.value}"')
         for ns in self._namespaces:
             out.write(f' {ns}')

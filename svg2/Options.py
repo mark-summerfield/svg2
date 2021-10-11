@@ -13,13 +13,16 @@ class Version(enum.Enum):
 
 
 class Options(collections.namedtuple(
-              'Options', 'use_style sep nl tab version',
-              defaults=(True, '', '', '', Version.V_1_1))):
+              'Options', 'use_style coord_comma sep nl tab version',
+              defaults=(True, False, '', '', '', Version.V_1_1))):
     '''Options used for `Svg.save()` (`Svg.dump()`), `Svg.dumps()` and
     `Svg.write()`.
     If `use_style` is `True` (the default) where possible stroke and fill
     will be set in a `style="..."` attribute rather than as individual
     attributes (`stroke="..." fill-opacity="...").
+    If `coord_comma` is `False` (the default) coordinates are separated by
+    spaces. If it's `True` then a comma is placed between each coordinate of
+    a coordinate pair and the coordinate pairs are separated by spaces.
     The `sep` is `''` by default and is used between style colons and after
     style semi-colons. For example with `sep=''`:
         style="stroke:blue;stroke-width:1.5;fill:red"
@@ -39,6 +42,6 @@ class Options(collections.namedtuple(
     '''
 
     @staticmethod
-    def pretty(*, use_style=True, sep=' ', nl='\n', tab='  ',
-               version=Version.V_1_1):
-        return Options(use_style, sep, nl, tab, version)
+    def pretty(*, use_style=True, coord_comma=True, sep=' ', nl='\n',
+               tab='  ', version=Version.V_1_1):
+        return Options(use_style, coord_comma, sep, nl, tab, version)

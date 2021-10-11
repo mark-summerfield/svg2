@@ -2,7 +2,10 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+from xml.sax.saxutils import escape as esc
+
 from . import AbstractShape
+from .Error import Error
 
 
 class WriteMixin:
@@ -24,9 +27,9 @@ class Line(AbstractShape.AbstractStroke, WriteMixin):
 
 
     def svg(self, indent, options):
-        style = _stylize(options.use_style, self.stroke.svg(options))
+        svg = _svg(options.use_style, self.stroke.svg(options))
         return (f'{indent}<line x1="{self.x1}" y1="{self.y1}" '
-                f'x2="{self.x2}" y2="{self.y2}"{style}/>{options.nl}')
+                f'x2="{self.x2}" y2="{self.y2}"{svg}/>{options.nl}')
 
 
 class Rect(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
@@ -40,13 +43,13 @@ class Rect(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
 
 
     def svg(self, indent, options):
-        style = _stylize(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options))
         return (f'{indent}<rect x="{self.x}" y="{self.y}" '
-                f'width="{self.width}" height="{self.height}"{style}/>'
+                f'width="{self.width}" height="{self.height}"{svg}/>'
                 f'{options.nl}')
 
 
-class Circle(AbstractShape.AbstractPositionStrokeFill):
+class Circle(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
 
     def __init__(self, x, y, *, radius, stroke=None, fill=None):
         '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
@@ -56,9 +59,9 @@ class Circle(AbstractShape.AbstractPositionStrokeFill):
 
 
     def svg(self, indent, options):
-        style = _stylize(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options))
         return (f'{indent}<circle cx="{self.x}" cy="{self.y}" '
-                f'r="{self.radius}"{style}/>{options.nl}')
+                f'r="{self.radius}"{svg}/>{options.nl}')
 
 
 class Ellipse(Circle):
@@ -84,25 +87,62 @@ class Ellipse(Circle):
     def svg(self, indent, options):
         if self.xradius == self.yradius:
             return super().svg(indent, options)
-        style = _stylize(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options))
         return (f'{indent}<ellipse cx="{self.x}" cy="{self.y}" '
                 f'rx="{self.xradius}" ry="{self.yradius}"'
-                f'{style}/>{options.nl}')
+                f'{svg}/>{options.nl}')
 
 
-class Polygon(AbstractShape.AbstractStrokeFill):
-
-    def __init__(self, *, stroke=None, fill=None):
-        pass # TODO
-
-
-class Polyline(AbstractShape.AbstractStrokeFill):
+class Polygon(AbstractShape.AbstractStrokeFill, WriteMixin):
 
     def __init__(self, *, stroke=None, fill=None):
-        pass # TODO
+        '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
+        '#ABC123'). The fill can be a Fill, Color, or color string.'''
+        super().__init__(stroke, fill)
+
+    # TODO
 
 
-class Path(AbstractShape.AbstractStrokeFill):
+class Polyline(AbstractShape.AbstractStrokeFill, WriteMixin):
+
+    def __init__(self, points=None, *, stroke=None, fill=None):
+        '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
+        '#ABC123'). The fill can be a Fill, Color, or color string.'''
+        super().__init__(stroke, fill)
+        self._points = []
+        if points:
+            self.set(points)
+
+
+    def add(self, x, y):
+        self._points += [x, y]
+
+
+    def set(self, points):
+        '''`points` must be a list or tuple of numbers.'''
+        if len(points) % 2:
+            raise Error('an even number of coordinates is required, '
+                        f'{len(points):,} were passed')
+        self._points = points
+
+
+    def clear(self):
+        self._points.clear()
+
+
+    def svg(self, indent, options):
+        if not self._points:
+            return ''
+        svg = _svg(options.use_style, super().svg(options))
+        if options.coord_comma:
+            points = ' '.join(f'{x},{y}' for x, y in zip(
+                              self._points[::2], self._points[1::2]))
+        else:
+            points = ' '.join(str(n) for n in self._points)
+        return f'{indent}<polyline points="{points}"{svg}/>{options.nl}'
+
+
+class Path(AbstractShape.AbstractStrokeFill, WriteMixin):
 
     def __init__(self, *, stroke=None, fill=None):
         '''The stroke can be a Stroke, Color, or color string (e.g., 'red',
@@ -113,7 +153,31 @@ class Path(AbstractShape.AbstractStrokeFill):
     # TODO
 
 
-def _stylize(use_style, style):
+class Text(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
+
+    def __init__(self, text, *, font=None, stroke=None, fill=None):
+        '''The font ###########
+        The stroke can be a Stroke, Color, or color string (e.g., 'red',
+        '#ABC123'). The fill can be a Fill, Color, or color string.'''
+        super().__init__(stroke, fill)
+        self.text = text
+        self.font = font
+
+
+    def svg(self, indent, options):
+        stroke = self.stroke.svg(options)
+        fill = self.fill.svg(options)
+        if stroke and fill:
+            sep = f';{options.sep}' if options.use_style else ' '
+            svg = stroke + sep + fill
+        else:
+            svg = stroke + fill
+        # TODO add font either as style or inline and add to svg
+        return (f'{indent}<text x="{self.x}" y="{self.y}"{svg}>'
+                f'{esc(self.text)}</text>{options.nl}')
+
+
+def _svg(use_style, svg):
     if use_style:
-        return f' style="{style}"' if style else ''
-    return style if style.startswith((' ', ';')) else f' {style}'
+        return f' style="{svg}"' if svg else ''
+    return svg if svg.startswith((' ', ';')) else f' {svg}'
