@@ -6,12 +6,16 @@ import collections
 
 from .SvgError import SvgError
 
+_TRANSPARENT = -1
+_CURRENTCOLOR = -2
+_URI = -3
+
 
 class Color:
     '''Holds an RGBA color with each component 0-255 as a single int or a
-    url for a gradient or pattern.'''
+    uri for a gradient or pattern.'''
 
-    __slots__ = ('_n', '_url')
+    __slots__ = ('_n', '_uri')
 
     Rgb = collections.namedtuple('Rgb', 'red green blue')
     Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
@@ -34,10 +38,21 @@ class Color:
 
         For convenience all named colors are predefined, e.g.:
             Svg.Color('blue') == Svg.Color.BLUE
+        For `currentColor` use `Svg.Color.CURRENTCOLOR`.
+        For transparent use either `Svg.Color.NONE` or
+        `Svg.Color.TRANSPARENT`.
+        For gradients or patterns
         '''
         self._n = None
-        self._url = None
+        self._uri = None
         if isinstance(color_or_red, int):
+            if color_or_red < 0:
+                self._n = color_or_red
+                if color_or_red == _TRANSPARENT:
+                    self._uri = 'none'
+                elif color_or_red == _CURRENTCOLOR:
+                    self._uri = 'currentColor'
+                return
             if (0 <= color_or_red < 256 and 0 <= green < 256 and
                     0 <= blue < 256 and 0 <= alpha < 256):
                 self._n = _int_for_rgba(color_or_red, green, blue, alpha)
@@ -45,6 +60,10 @@ class Color:
             raise SvgError(f'out of range color value: ({color_or_red!r},'
                            f'{green!r},{blue!r},{alpha!r})')
         color = ''.join(color_or_red.strip().split()).lower()
+        if color.startswith('url('):
+            self._n = _URI
+            self._uri = color[4:].rstrip(')')
+            return
         if color.startswith(('rgba(', 'rgb(')):
             FACTOR = 255 / 100.0
             i = color.find('(')
@@ -91,6 +110,14 @@ class Color:
                 self._n = _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
                                         int(h[4:6], 16), int(h[6:8], 16))
             return
+        if color in {'none', 'transparent'}:
+            self._n = _TRANSPARENT
+            self._uri = 'none'
+            return
+        if color == 'currentcolor':
+            self._n = _CURRENTCOLOR
+            self._uri = 'currentColor'
+            return
         values = _color_for_name(color_or_red)
         if values is None:
             raise SvgError(f'invalid color: {color_or_red!r}')
@@ -98,6 +125,12 @@ class Color:
 
 
     def __repr__(self):
+        if self._n == _TRANSPARENT:
+            return 'Color.NONE'
+        elif self._n == _CURRENTCOLOR:
+            return 'Color.CURRENTCOLOR'
+        elif self._n == _URI:
+            return f"Color('url({self._uri})')"
         h = self.rgb_html() if self.alpha == 255 else self.rgba_html()
         return f'Color({h!r})'
 
@@ -111,6 +144,8 @@ class Color:
 
         See also the `name` property and the `rgb_html()` and `rgba_html()`
         methods.'''
+        if self._n < 0:
+            return repr(self)
         if self.alpha != 255: # All named colors are solid so alpha == 255
             return self.rgba_html()
         h = self.rgb_html()
@@ -119,11 +154,11 @@ class Color:
 
 
     def __eq__(self, other):
-        return self._n == other._n and self._url == other._url
+        return self._n == other._n and self._uri == other._uri
 
 
     def __hash__(self):
-        return hash((self._n, self._url))
+        return hash((self._n, self._uri))
 
 
     @property
@@ -133,6 +168,12 @@ class Color:
 
         See also the `__str__()`, `rgb_html()`, and `rgba_html()`
         methods.'''
+        if self._n == _TRANSPARENT:
+            return 'none'
+        elif self._n == _CURRENTCOLOR:
+            return 'currentColor'
+        elif self._n == _URI:
+            return f'url({self._uri})'
         if self.alpha != 255: # All named colors are solid so alpha == 255
             return self.rgba_html()
         name = _NAME_FOR_COLOR.get((self.red, self.green, self.blue))
@@ -200,6 +241,8 @@ class Color:
 
         See also the `name` property and the `__str__()` and `rgba_html()`
         methods.'''
+        if self._n < 0:
+            raise SvgError('color has no color components as such')
         r = f'{self.red:02X}'
         g = f'{self.green:02X}'
         b = f'{self.blue:02X}'
@@ -216,6 +259,8 @@ class Color:
 
         See also the `name` property and the `__str__()` and `rgb_html()`
         methods.'''
+        if self._n < 0:
+            raise SvgError('color has no color components as such')
         r = f'{self.red:02X}'
         g = f'{self.green:02X}'
         b = f'{self.blue:02X}'
@@ -239,6 +284,8 @@ class Color:
         For round-trip reliability prefer `.name`, `__str__()`, or
         `rgb_html()`.
         '''
+        if self._n < 0:
+            raise SvgError('color has no color components as such')
         if percent:
             return (f'rgb({self.red / 255:.{decimals}%}{sep}'
                     f'{self.green / 255:.{decimals}%}{sep}'
@@ -261,6 +308,8 @@ class Color:
         For round-trip reliability prefer `.name`, `__str__()`, or
         `rgba_html()`.
         '''
+        if self._n < 0:
+            raise SvgError('color has no color components as such')
         alpha = f'{self.alpha / 255:.{decimals}f}'
         if percent:
             return (f'rgba({self.red / 255:.{decimals}%}{sep}'
@@ -446,3 +495,6 @@ for _name, _value in (('AQUA', (0x00, 0xFF, 0xFF)), # synonyms
                       ('SLATEGRAY', (0x70, 0x80, 0x90))):
     setattr(Color, _name, Color(*_value))
 del _value, _name
+setattr(Color, 'TRANSPARENT', Color(_TRANSPARENT))
+setattr(Color, 'NONE', Color(_TRANSPARENT))
+setattr(Color, 'CURRENTCOLOR', Color(_CURRENTCOLOR))

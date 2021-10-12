@@ -123,6 +123,13 @@ class TestSvg(unittest.TestCase):
         self.assertEqual(color.rgb, Color.Rgb(0xAb, 0xCD, 0xEF))
         color = Color(0xAB, 0xCD, 0xEF, 0x12)
         self.assertEqual(color.rgba, Color.Rgba(0xAb, 0xCD, 0xEF, 0x12))
+        color = Color.NONE
+        self.assertEqual(color.name, 'none')
+        color = Color.TRANSPARENT
+        self.assertEqual(color.name, 'none')
+        self.assertEqual(Color('none'), Color('transparent'))
+        self.assertEqual(Color.CURRENTCOLOR, Color('currentColor'))
+        self.assertEqual(Color.CURRENTCOLOR.name, 'currentColor')
 
 
     def test_line(self):
