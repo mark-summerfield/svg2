@@ -11,16 +11,16 @@ _CURRENTCOLOR = -2
 _URI = -3
 
 
-class Color:
+class Color(tuple):
     '''Holds an RGBA color with each component 0-255 as a single int or a
     uri for a gradient or pattern.'''
 
-    __slots__ = ('_n', '_uri')
+    __slots__ = ()
 
     Rgb = collections.namedtuple('Rgb', 'red green blue')
     Rgba = collections.namedtuple('Rgba', 'red green blue alpha')
 
-    def __init__(self, color_or_red, green=0, blue=0, alpha=255):
+    def __new__(Class, color_or_red, green=0, blue=0, alpha=255):
         '''Returns a Color or raises an SvgError.
 
         The color is specified either as a single string, e.g.,
@@ -38,32 +38,33 @@ class Color:
 
         For convenience all named colors are predefined, e.g.:
             Svg.Color('blue') == Svg.Color.BLUE
+
         For `currentColor` use `Svg.Color.CURRENTCOLOR`.
         For transparent use either `Svg.Color.NONE` or
         `Svg.Color.TRANSPARENT`.
-        For gradients or patterns
+        For gradients or patterns pass 'url(...)'.
+
+        All the methods that access color components (rgb..., alpha, red,
+        ...) will raise an SvgError if the color is `NONE`, `CURRENTCOLOR`
+        or a gradient or pattern.
         '''
-        self._n = None
-        self._uri = None
         if isinstance(color_or_red, int):
             if color_or_red < 0:
-                self._n = color_or_red
                 if color_or_red == _TRANSPARENT:
-                    self._uri = 'none'
+                    uri = 'none'
                 elif color_or_red == _CURRENTCOLOR:
-                    self._uri = 'currentColor'
-                return
+                    uri = 'currentColor'
+                return super().__new__(Class, (color_or_red, uri))
             if (0 <= color_or_red < 256 and 0 <= green < 256 and
                     0 <= blue < 256 and 0 <= alpha < 256):
-                self._n = _int_for_rgba(color_or_red, green, blue, alpha)
-                return
+                return super().__new__(
+                    Class, (_int_for_rgba(color_or_red, green, blue, alpha),
+                            None))
             raise SvgError(f'out of range color value: ({color_or_red!r},'
                            f'{green!r},{blue!r},{alpha!r})')
         color = ''.join(color_or_red.strip().split()).lower()
         if color.startswith('url('):
-            self._n = _URI
-            self._uri = color[4:].rstrip(')')
-            return
+            return super().__new__(Class, (_URI, color[4:].rstrip(')')))
         if color.startswith(('rgba(', 'rgb(')):
             FACTOR = 255 / 100.0
             i = color.find('(')
@@ -88,8 +89,7 @@ class Color:
                     raise SvgError(
                         f'out of range alpha value: {color_or_red!r}')
                 values[-1] = round(255.0 * value)
-            self._n = _int_for_rgba(*values)
-            return
+            return super().__new__(Class, (_int_for_rgba(*values), None))
         if color.startswith('#'):
             h = color[1:]
             for c in h:
@@ -104,24 +104,30 @@ class Color:
             elif len(h) == 4:
                 h = f'{h[0]}{h[0]}{h[1]}{h[1]}{h[2]}{h[2]}{h[3]}{h[3]}'
             if len(h) == 6:
-                self._n = _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
-                                        int(h[4:6], 16))
+                n = _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
+                                  int(h[4:6], 16))
             else:
-                self._n = _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
-                                        int(h[4:6], 16), int(h[6:8], 16))
-            return
+                n = _int_for_rgba(int(h[:2], 16), int(h[2:4], 16),
+                                  int(h[4:6], 16), int(h[6:8], 16))
+            return super().__new__(Class, (n, None))
         if color in {'none', 'transparent'}:
-            self._n = _TRANSPARENT
-            self._uri = 'none'
-            return
+            return super().__new__(Class, (_TRANSPARENT, 'none'))
         if color == 'currentcolor':
-            self._n = _CURRENTCOLOR
-            self._uri = 'currentColor'
-            return
+            return super().__new__(Class, (_CURRENTCOLOR, 'currentColor'))
         values = _color_for_name(color_or_red)
         if values is None:
             raise SvgError(f'invalid color: {color_or_red!r}')
-        self._n = _int_for_rgba(*values)
+        return super().__new__(Class, (_int_for_rgba(*values), None))
+
+
+    @property
+    def _n(self):
+        return super().__getitem__(0)
+
+
+    @property
+    def _uri(self):
+        return super().__getitem__(1)
 
 
     def __repr__(self):

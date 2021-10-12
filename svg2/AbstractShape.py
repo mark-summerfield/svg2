@@ -7,9 +7,45 @@ from .Fill import Fill
 from .Stroke import Stroke
 
 
-class AbstractStroke:
+class AbstractShape:
+
+    def __init__(self):
+        self._css_classes = []
+        self._css_style = {}
+
+
+    def add_css_style(self, name, value):
+        self._css_style[name] = value
+
+
+    def css_style(self, sep): # TODO accept options and do sep better
+        if not self._css_style:
+            return ''
+        parts = []
+        for name, value in self._css_style.items():
+            parts.append(f'{name}: {value}')
+        return f';{sep}'.join(parts)
+
+
+    def add_css_class(self, css_class):
+        if css_class not in self._css_classes:
+            self._css_classes.append(css_class)
+            return True
+        return False
+
+
+    @property
+    def css_classes(self):
+        if self._css_classes:
+            classes = ' '.join(self._css_classes)
+            return f' class="{classes}"'
+        return ''
+
+
+class AbstractStroke(AbstractShape):
 
     def __init__(self, stroke=None):
+        super().__init__()
         self.stroke = stroke
 
 

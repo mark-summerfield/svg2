@@ -7,6 +7,8 @@ from xml.sax.saxutils import escape as esc
 from . import AbstractShape
 from .SvgError import SvgError
 
+# TODO change css_style(options.sep) to css_style(options)
+
 
 class WriteMixin:
 
@@ -27,9 +29,11 @@ class Line(AbstractShape.AbstractStroke, WriteMixin):
 
 
     def svg(self, indent, options):
-        svg = _svg(options.use_style, self.stroke.svg(options))
+        svg = _svg(options.use_style, self.stroke.svg(options),
+                   self.css_style(options.sep))
         return (f'{indent}<line x1="{self.x1}" y1="{self.y1}" '
-                f'x2="{self.x2}" y2="{self.y2}"{svg}/>{options.nl}')
+                f'x2="{self.x2}" y2="{self.y2}"{self.css_classes}{svg}/>'
+                f'{options.nl}')
 
 
 class Rect(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
@@ -43,10 +47,11 @@ class Rect(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
 
 
     def svg(self, indent, options):
-        svg = _svg(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options),
+                   self.css_style(options.sep))
         return (f'{indent}<rect x="{self.x}" y="{self.y}" '
-                f'width="{self.width}" height="{self.height}"{svg}/>'
-                f'{options.nl}')
+                f'width="{self.width}" height="{self.height}"'
+                f'{self.css_classes}{svg}/>{options.nl}')
 
 
 class Circle(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
@@ -59,9 +64,10 @@ class Circle(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
 
 
     def svg(self, indent, options):
-        svg = _svg(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options),
+                   self.css_style(options.sep))
         return (f'{indent}<circle cx="{self.x}" cy="{self.y}" '
-                f'r="{self.radius}"{svg}/>{options.nl}')
+                f'r="{self.radius}"{self.css_classes}{svg}/>{options.nl}')
 
 
 class Ellipse(Circle):
@@ -87,9 +93,10 @@ class Ellipse(Circle):
     def svg(self, indent, options):
         if self.xradius == self.yradius:
             return super().svg(indent, options)
-        svg = _svg(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options),
+                   self.css_style(options.sep))
         return (f'{indent}<ellipse cx="{self.x}" cy="{self.y}" '
-                f'rx="{self.xradius}" ry="{self.yradius}"'
+                f'rx="{self.xradius}" ry="{self.yradius}"{self.css_classes}'
                 f'{svg}/>{options.nl}')
 
 
@@ -133,13 +140,15 @@ class Polyline(AbstractShape.AbstractStrokeFill, WriteMixin):
     def svg(self, indent, options):
         if not self._points:
             return ''
-        svg = _svg(options.use_style, super().svg(options))
+        svg = _svg(options.use_style, super().svg(options),
+                   self.css_style(options.sep))
         if options.coord_comma:
             points = ' '.join(f'{x},{y}' for x, y in zip(
                               self._points[::2], self._points[1::2]))
         else:
             points = ' '.join(str(n) for n in self._points)
-        return f'{indent}<polyline points="{points}"{svg}/>{options.nl}'
+        return (f'{indent}<polyline points="{points}"{self.css_classes}'
+                f'{svg}/>{options.nl}')
 
 
 class Path(AbstractShape.AbstractStrokeFill, WriteMixin):
@@ -173,11 +182,15 @@ class Text(AbstractShape.AbstractPositionStrokeFill, WriteMixin):
         else:
             svg = stroke + fill
         # TODO add font either as style or inline and add to svg
-        return (f'{indent}<text x="{self.x}" y="{self.y}"{svg}>'
-                f'{esc(self.text)}</text>{options.nl}')
+        return (f'{indent}<text x="{self.x}" y="{self.y}"{self.css_classes}'
+                f'{svg}>{esc(self.text)}</text>{options.nl}')
 
 
-def _svg(use_style, svg):
+def _svg(use_style, svg, css_style):
     if use_style:
+        if svg and css_style:
+            svg = svg + '; ' + css_style
+        else:
+            svg = svg + css_style
         return f' style="{svg}"' if svg else ''
     return svg if svg.startswith((' ', ';')) else f' {svg}'
