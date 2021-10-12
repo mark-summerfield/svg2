@@ -1,5 +1,10 @@
 # svg2
 
+*Superceded by svg1 for SVG v1.1*
+
+See https://github.com/mark-summerfield/svg1 or
+https://pypi.org/project/svg1/
+
 _Pre-alpha software, work in progress, nothing actually works yet!_
 
 _Prior to version 1.0.0 the API is completely unstable._
