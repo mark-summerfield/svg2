@@ -2,5 +2,5 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-class Error(Exception):
+class SvgError(Exception):
     pass

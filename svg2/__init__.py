@@ -7,3 +7,4 @@ __version__ = '0.1.1'
 
 from .Color import Color
 from .Svg import Svg
+from .SvgError import SvgError

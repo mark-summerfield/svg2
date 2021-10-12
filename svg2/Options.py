@@ -30,7 +30,7 @@ class Options(collections.namedtuple(
         style="stroke: blue; stroke-width: 1.5; fill: red"
     The `nl` is used for newlines and defaults to `''`, so normally the only
     newlines used follow the `<?xml...` and `<DOCTYPE...` lines. use
-    `nl='\\n' for a newline after each tagged item.
+    `nl='\\n' for a newline after each tagged shape.
     The `tab` is used as the indent at each level and defaults to `''`, so
     normally there is no indent. This only makes sense if `nl='\\n'`, in
     which case use `tab='  '` or similar.

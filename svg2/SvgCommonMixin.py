@@ -2,7 +2,6 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-from .Error import Error
 from .Fill import Fill
 from .Options import Options, Version
 from .Shape import Circle, Ellipse, Line, Path, Polygon, Polyline, Rect
@@ -13,7 +12,6 @@ class Mixin:
 
     Circle = Circle
     Ellipse = Ellipse
-    Error = Error
     Fill = Fill
     Line = Line
     Options = Options

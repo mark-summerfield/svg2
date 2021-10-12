@@ -2,18 +2,24 @@
 # Copyright © 2021 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-class Group:
+from .Shape import WriteMixin
+
+
+class Group(WriteMixin):
 
     def __init__(self, id):
         self.id = id
-        self._items = []
+        self._shapes = []
 
 
-    def write(self, out, indent, options):
-        nl = options.nl
+    def __iadd__(self, shape):
+        self._shapes.append(shape)
+
+
+    def svg(self, indent, options):
         parts = [f'<g id="{self.id}">']
         indent += options.tab
-        for item in self._items:
-            parts.append(item.svg(indent, options))
-        parts.append(f'</g>{nl}')
-        out.write(f'{nl}'.join(parts))
+        for shape in self._shapes:
+            parts.append(shape.svg(indent, options))
+        parts.append(f'</g>{options.nl}')
+        return f'{options.nl}'.join(parts)

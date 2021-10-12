@@ -5,7 +5,7 @@
 from xml.sax.saxutils import escape as esc
 
 from . import AbstractShape
-from .Error import Error
+from .SvgError import SvgError
 
 
 class WriteMixin:
@@ -121,8 +121,8 @@ class Polyline(AbstractShape.AbstractStrokeFill, WriteMixin):
     def set(self, points):
         '''`points` must be a list or tuple of numbers.'''
         if len(points) % 2:
-            raise Error('an even number of coordinates is required, '
-                        f'{len(points):,} were passed')
+            raise SvgError('an even number of coordinates is required, '
+                           f'{len(points):,} were passed')
         self._points = points
 
 
