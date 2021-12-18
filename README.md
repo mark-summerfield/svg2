@@ -1,6 +1,6 @@
 # svg2
 
-*Superceded by svg1 for SVG v1.1*
+**###Abandoned###**
 
 See https://github.com/mark-summerfield/svg1 or
 https://pypi.org/project/svg1/
